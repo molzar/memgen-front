@@ -1,19 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { withRouter } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import Button from '@material-ui/core/Button';
 import CardMedia from '@material-ui/core/CardMedia';
 import Grid from '@material-ui/core/Grid';
-import CssBaseline from '@material-ui/core/CssBaseline';
+// import CssBaseline from '@material-ui/core/CssBaseline';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import { loadMemes } from './actions';
 import { makeSelectMemes } from './selectors';
-
+import { makeSelecGridProps } from '../App/selectors';
 const styles = theme => ({
   icon: {
     marginRight: theme.spacing.unit * 2,
@@ -38,54 +37,66 @@ const styles = theme => ({
   },
   cardMedia: {
     paddingTop: '90%', // 16:9
-    backgroundSize: 'auto',
+    // backgroundSize: 'auto',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '100% 100%',
   },
   cardContent: {
     flexGrow: 1,
   },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing.unit * 3,
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
 });
-
-// const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 export class HomePageImgList extends React.Component {
   constructor(props) {
     super(props);
-    props.loadMemes();
+    props.loadMemes(
+      props.gridProps.limit,
+      props.gridProps.offset,
+      this.props.match.url === '/myMemes' ? props.userID : '',
+    );
+  }
+
+  componentDidUpdate(oldProps) {
+    if (
+      oldProps.userID !== this.props.userID ||
+      oldProps.match.url !== this.props.match.url
+    ) {
+      this.props.loadMemes(
+        this.props.gridProps.limit,
+        this.props.gridProps.offset,
+        this.props.match.url === '/myMemes' ? this.props.userID : '',
+      );
+    }
   }
 
   render() {
     const { classes, memes } = this.props;
     return (
-      <React.Fragment>
-        <CssBaseline />
-        <main>
-          <div className={classNames(classes.layout, classes.cardGrid)}>
-            {/* End hero unit */}
-            <Grid container spacing={8}>
-              {memes.map(meme => (
-                <Grid item key={meme.id} sm={6} md={4} lg={3}>
-                  <Card className={classes.card}>
-                    <CardMedia
-                      className={classes.cardMedia}
-                      image={meme.url}
-                      title="Image title"
-                    />
-
-                    <CardActions>
-                      <Button size="small" color="primary">
-                        View
-                      </Button>
-                      <Button size="small" color="primary">
-                        Edit
-                      </Button>
-                    </CardActions>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </div>
-        </main>
-      </React.Fragment>
+      <main className={classes.content}>
+        <div className={classNames(classes.layout, classes.cardGrid)}>
+          <Grid container spacing={8}>
+            {memes.map(meme => (
+              <Grid item key={meme.id} sm={12} md={4} lg={2}>
+                <Card className={classes.card}>
+                  <CardMedia
+                    className={classes.cardMedia}
+                    image={meme.url}
+                    title="Image title"
+                  />
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </div>
+      </main>
     );
   }
 }
@@ -94,14 +105,19 @@ HomePageImgList.propTypes = {
   classes: PropTypes.object.isRequired,
   memes: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   loadMemes: PropTypes.func,
+  gridProps: PropTypes.object,
+  userID: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  match: PropTypes.object,
 };
 
 const mapDispatchToProps = dispatch => ({
-  loadMemes: () => dispatch(loadMemes(0, 10)),
+  loadMemes: (limit, offset, userID) =>
+    dispatch(loadMemes(limit, offset, userID)),
 });
 
 const mapStateToProps = createStructuredSelector({
   memes: makeSelectMemes(),
+  gridProps: makeSelecGridProps(),
 });
 
 const withConnect = connect(
@@ -110,6 +126,7 @@ const withConnect = connect(
 );
 
 export default compose(
+  withRouter,
   withConnect,
   withStyles(styles),
 )(HomePageImgList);

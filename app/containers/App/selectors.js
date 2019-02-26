@@ -14,6 +14,9 @@ const makeSelectCurrentUser = () =>
 const selectUserProfile = () =>
   createSelector(selectGlobal, globalState => globalState.get('userProfile'));
 
+const selectDrawerOpen = () =>
+  createSelector(selectGlobal, globalState => globalState.get('drawerOpen'));
+
 const makeSelectLoading = () =>
   createSelector(selectGlobal, globalState => globalState.get('loading'));
 
@@ -30,6 +33,17 @@ const makeSelectLocation = () =>
     routerState.get('location').toJS(),
   );
 
+const makeSelecDBUser = () =>
+  createSelector(selectGlobal, globalState => globalState.get('dbUser'));
+
+const makeSelecDBUserError = () =>
+  createSelector(selectGlobal, globalState => globalState.get('dbUserError'));
+
+const makeSelecGridProps = () =>
+  createSelector(selectGlobal, globalState =>
+    globalState.get('gridProps').toJS(),
+  );
+
 export {
   selectGlobal,
   makeSelectCurrentUser,
@@ -38,4 +52,8 @@ export {
   makeSelectRepos,
   makeSelectLocation,
   selectUserProfile,
+  selectDrawerOpen,
+  makeSelecDBUser,
+  makeSelecDBUserError,
+  makeSelecGridProps,
 };

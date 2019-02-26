@@ -11,20 +11,21 @@ import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Switch, Route } from 'react-router-dom';
-
+import { compose } from 'redux';
+import injectSaga from 'utils/injectSaga';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-
 import HomePage from 'containers/HomePage/Loadable';
 import ImageDraw from 'containers/ImageDraw/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
+import saga from './saga';
 import GlobalStyle from '../../global-styles';
 import AuthContext from '../../src/AuthContext';
 import Auth from '../../Auth/Auth';
 import Callback from '../../src/Callback';
 import { selectUserProfile } from './selectors';
-import { setUserProfile } from './actions';
+import { setUserProfile, checkDBUser } from './actions';
 
 const AppWrapper = styled.div`
   display: flex;
@@ -42,7 +43,11 @@ class App extends Component {
     super(props);
 
     this.state = {
-      auth: new Auth(this.props.history, this.props.localSetUserProfile),
+      auth: new Auth(
+        this.props.history,
+        this.props.localSetUserProfile,
+        this.props.checkDBUser,
+      ),
     };
   }
 
@@ -66,13 +71,17 @@ class App extends Component {
             profile={profile}
           />
           <Switch>
-            <Route exact path="/" component={HomePage} />
+            <Route exact path="/" render={props => <HomePage {...props} />} />
             <Route
               path="/callback"
               auth={auth}
               render={props => <Callback auth={auth} {...props} />}
             />
-            <Route path="/imageDraw" component={ImageDraw} />
+            <Route
+              path="/imageDraw"
+              render={props => <ImageDraw {...props} />}
+            />
+            <Route path="/myMemes" render={props => <HomePage {...props} />} />
             <Route path="" component={NotFoundPage} />
           </Switch>
 
@@ -92,6 +101,7 @@ const mapStateToProps = createStructuredSelector({
 
 const mapDispatchToProps = dispatch => ({
   localSetUserProfile: profile => dispatch(setUserProfile(profile)),
+  checkDBUser: profile => dispatch(checkDBUser(profile)),
 });
 
 const withConnect = connect(
@@ -99,4 +109,9 @@ const withConnect = connect(
   mapDispatchToProps,
 );
 
-export default withConnect(App);
+const withSaga = injectSaga({ key: 'app', saga });
+
+export default compose(
+  withSaga,
+  withConnect,
+)(App);

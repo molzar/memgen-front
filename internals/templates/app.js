@@ -13,6 +13,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router/immutable';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import history from 'utils/history';
 import 'sanitize.css/sanitize.css';
 
@@ -43,7 +44,9 @@ const render = messages => {
     <Provider store={store}>
       <LanguageProvider messages={messages}>
         <ConnectedRouter history={history}>
-          <App />
+          <Router>
+            <Route component={App} />
+          </Router>
         </ConnectedRouter>
       </LanguageProvider>
     </Provider>,

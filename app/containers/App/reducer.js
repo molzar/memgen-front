@@ -17,6 +17,10 @@ import {
   LOAD_REPOS,
   LOAD_REPOS_ERROR,
   SET_USER_PROFILE,
+  CHANGE_DRAWER_OPEN,
+  USER_DB_FOUND,
+  USER_DB_ERROR,
+  USER_DB_NOT_FOUND,
 } from './constants';
 
 // The initial state of the App
@@ -27,6 +31,10 @@ const initialState = fromJS({
   userData: {
     repositories: false,
   },
+  drawerOpen: false,
+  dbUser: {},
+  dbUserError: {},
+  gridProps: { limit: 0, offset: 100 },
 });
 
 function appReducer(state = initialState, action) {
@@ -45,6 +53,14 @@ function appReducer(state = initialState, action) {
       return state.set('error', action.error).set('loading', false);
     case SET_USER_PROFILE:
       return state.set('userProfile', action.userProfile);
+    case CHANGE_DRAWER_OPEN:
+      return state.set('drawerOpen', !state.set('drawerOpen'));
+    case USER_DB_FOUND:
+      return state.set('dbUser', action.profile);
+    case USER_DB_ERROR:
+      return state.set('dbUserError', action.msg);
+    case USER_DB_NOT_FOUND:
+      return state.set('dbUserError', action);
     default:
       return state;
   }

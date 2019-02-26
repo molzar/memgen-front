@@ -33,23 +33,21 @@ export function* getRepos(action) {
 
 export function* getMemes(action) {
   // Select username from store
-  const requestURL = `http://localhost:3001/api/posts/${action.limit}&${
-    action.offset
-  }`;
+  const requestURL = action.userID
+    ? `http://localhost:3001/api/posts/${action.userID}/
+    ${action.limit}&${action.offset}`
+    : `http://localhost:3001/api/posts/${action.limit}&${action.offset}`;
 
   const options = {
     method: 'GET',
   };
 
   try {
-    // Call our request helper (see 'utils/request')
-
     const memes = yield call(request, requestURL, options);
-    if (!memes || memes.error) {
-      // yield put(repoLoadingError(memes.error));
+    if (!memes || !memes.success || !memes.data) {
       yield put(loadMemesSuccess([]));
     } else {
-      yield put(loadMemesSuccess(memes));
+      yield put(loadMemesSuccess(memes.data));
     }
   } catch (err) {
     // yield put(repoLoadingError(err));
