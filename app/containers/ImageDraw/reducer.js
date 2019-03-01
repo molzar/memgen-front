@@ -67,7 +67,7 @@ export const textAttrs = {
 };
 
 export const image = {
-  src: 'https://i.imgur.com/6qCxMKM.png',
+  src: `/api/proxy/${encodeURIComponent('https://i.imgur.com/6qCxMKM.png')}`,
   crossOrigin: 'Anonymous',
   width: 236,
   height: 213,
@@ -79,7 +79,7 @@ export const initialState = fromJS({
   loadedImage: {},
   textAttrs,
   base64Meme: '',
-  latestUpload: {},
+  latestUpload: { url: 'urlImage' },
 });
 
 function imageDrawReducer(state = initialState, action) {

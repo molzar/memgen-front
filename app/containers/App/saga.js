@@ -6,9 +6,12 @@ import {
   checkUserDBNotFound,
 } from './actions';
 import { USER_LOGIN, USER_DB_NOT_FOUND } from './constants';
+import { API_IP, API_PORT } from '../../utils/constants';
 
 export function* checkUserDB(action) {
-  const requestURL = `http://localhost:3001/api/users/${action.profile.email}`;
+  const requestURL = `http://${API_IP}:${API_PORT}/api/users/${
+    action.profile.email
+  }`;
   const options = {
     method: 'GET',
   };
@@ -26,7 +29,7 @@ export function* checkUserDB(action) {
 }
 
 export function* insertUserDB(action) {
-  const requestURL = `http://localhost:3001/api/users?username=${
+  const requestURL = `http://${API_IP}:${API_PORT}/api/users?username=${
     action.msg.profile.email
   }&password=&email=${action.msg.profile.email}&description=&avatarurl=${
     action.msg.profile.picture

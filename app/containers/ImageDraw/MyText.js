@@ -23,6 +23,12 @@ class MyText extends React.Component {
 
   componentDidUpdate() {
     if (this.stage && this.stage.getLayer()) this.stage.getLayer().batchDraw();
+    if (this.props.loadedImage.width <= this.text.current.textWidth) {
+      this.text.current.width(this.props.loadedImage.width);
+    }
+    // } else {
+    //   this.text.current.width(this.text.current.textWidth);
+    // }
   }
 
   handleDragEnd = name => e => {
@@ -33,11 +39,7 @@ class MyText extends React.Component {
   };
 
   handleDragMove = name => e => {
-    const { image, loadedImage, textAttrs } = this.props;
-    const canvasWidth =
-      loadedImage && loadedImage.width ? loadedImage.width : image.width;
-    const canvasHeight =
-      loadedImage && loadedImage.height ? loadedImage.height : image.height;
+    const { loadedImage, textAttrs } = this.props;
     const newX = e.target.x();
     const newY = e.target.y();
     const textWidth = e.target.getWidth();
@@ -48,16 +50,16 @@ class MyText extends React.Component {
     if (newX < CANVAS_INNER_PADDING) {
       newerX = CANVAS_INNER_PADDING;
     }
-    if (newX > canvasWidth - CANVAS_INNER_PADDING - textWidth) {
-      newerX = canvasWidth - CANVAS_INNER_PADDING - textWidth;
+    if (newX > loadedImage.width - CANVAS_INNER_PADDING - textWidth) {
+      newerX = loadedImage.width - CANVAS_INNER_PADDING - textWidth;
     }
 
     if (newY < CANVAS_INNER_PADDING) {
       newerY = CANVAS_INNER_PADDING;
     }
 
-    if (newY > canvasHeight - CANVAS_INNER_PADDING - textHeight) {
-      newerY = canvasHeight - CANVAS_INNER_PADDING - textHeight;
+    if (newY > loadedImage.height - CANVAS_INNER_PADDING - textHeight) {
+      newerY = loadedImage.height - CANVAS_INNER_PADDING - textHeight;
     }
 
     textAttrs[name].text.x = newerX;
@@ -74,13 +76,16 @@ class MyText extends React.Component {
         ref={this.text}
         x={textAttrs[name].text.x}
         y={textAttrs[name].text.y}
+        wrap="word"
+        // width={460}
+        // height={480}
         draggable
         fontSize={textAttrs[name].text.fontSize}
         fontFamily={textAttrs[name].text.fontFamily}
         fill={`rgba(${textAttrs[name].color.r}, ${textAttrs[name].color.g}, ${
           textAttrs[name].color.b
         }, ${textAttrs[name].color.a})`}
-        text={textAttrs[name].text.text}
+        text={textAttrs[name].text.text.toUpperCase()}
         stroke={textAttrs[name].text.stroke}
         onDragEnd={this.handleDragEnd(name)}
         onDragMove={this.handleDragMove(name)}
@@ -94,7 +99,6 @@ MyText.propTypes = {
   name: PropTypes.string.isRequired,
   loadTextAttrs: PropTypes.func,
   loadedImage: PropTypes.object,
-  image: PropTypes.object,
 };
 
 const mapDispatchToProps = dispatch => ({

@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { withRouter } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardMedia from '@material-ui/core/CardMedia';
-import Grid from '@material-ui/core/Grid';
+import sizeMe from 'react-sizeme';
+import StackGrid from 'react-stack-grid';
+import Image from 'material-ui-image';
 // import CssBaseline from '@material-ui/core/CssBaseline';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -14,43 +13,15 @@ import { loadMemes } from './actions';
 import { makeSelectMemes } from './selectors';
 import { makeSelecGridProps } from '../App/selectors';
 const styles = theme => ({
-  icon: {
-    marginRight: theme.spacing.unit * 2,
-  },
   layout: {
     width: 'auto',
-    marginLeft: theme.spacing.unit * 3,
-    marginRight: theme.spacing.unit * 3,
+    marginLeft: theme.spacing.unit * 10,
+    marginRight: theme.spacing.unit * 10,
     [theme.breakpoints.up((768 + theme.spacing.unit) * 3 * 2)]: {
       width: 768,
-      marginLeft: 'auto',
-      marginRight: 'auto',
+      marginLeft: theme.spacing.unit * 1,
+      marginRight: theme.spacing.unit * 1,
     },
-  },
-  cardGrid: {
-    padding: `${theme.spacing.unit * 8}px 0`,
-  },
-  card: {
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  cardMedia: {
-    paddingTop: '90%', // 16:9
-    // backgroundSize: 'auto',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: '100% 100%',
-  },
-  cardContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing.unit * 3,
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
   },
 });
 
@@ -78,24 +49,35 @@ export class HomePageImgList extends React.Component {
   }
 
   render() {
-    const { classes, memes } = this.props;
+    const {
+      classes,
+      memes,
+      size: { width },
+    } = this.props;
+    let dinamicWidth = '100%';
+    switch (true) {
+      case width <= 640:
+        dinamicWidth = '100%';
+        break;
+      case width > 640 && width <= 768:
+        dinamicWidth = '50%';
+        break;
+      case width > 768 && width <= 1024:
+        dinamicWidth = '33.33%';
+        break;
+      default:
+        dinamicWidth = '25%';
+    }
     return (
-      <main className={classes.content}>
-        <div className={classNames(classes.layout, classes.cardGrid)}>
-          <Grid container spacing={8}>
-            {memes.map(meme => (
-              <Grid item key={meme.id} sm={12} md={4} lg={2}>
-                <Card className={classes.card}>
-                  <CardMedia
-                    className={classes.cardMedia}
-                    image={meme.url}
-                    title="Image title"
-                  />
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </div>
+      <main className={classes.layout}>
+        <StackGrid columnWidth={dinamicWidth}>
+          {memes.map(meme => (
+            <Image
+              src={`/api/proxy/${encodeURIComponent(meme.url)}`}
+              key={meme.id}
+            />
+          ))}
+        </StackGrid>
       </main>
     );
   }
@@ -108,6 +90,7 @@ HomePageImgList.propTypes = {
   gridProps: PropTypes.object,
   userID: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   match: PropTypes.object,
+  size: PropTypes.object,
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -128,5 +111,6 @@ const withConnect = connect(
 export default compose(
   withRouter,
   withConnect,
+  sizeMe(),
   withStyles(styles),
 )(HomePageImgList);

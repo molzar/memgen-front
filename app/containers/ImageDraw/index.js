@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { fromJS } from 'immutable';
 import Input from '@material-ui/core/Input';
-import Grid from '@material-ui/core/Grid';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import FileCopySharp from '@material-ui/icons/FileCopySharp';
 import injectSaga from 'utils/injectSaga';
@@ -13,6 +12,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
 import red from '@material-ui/core/colors/red';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
@@ -34,8 +34,10 @@ import {
   setBase64Meme,
   loadTextAttrs,
   setUploadInput,
+  loadImageSuccess,
   resetState,
   uploadImage,
+  insertPostDBSucces,
 } from './actions';
 import {
   makeSelectBase64Meme,
@@ -71,7 +73,7 @@ const styles = theme => ({
   },
   card: {
     maxWidth: 1200,
-    minWidth: 350,
+    // minWidth: 350,
   },
   media: {
     height: 0,
@@ -85,6 +87,14 @@ const styles = theme => ({
     marginLeft: 'auto',
     transition: theme.transitions.create('transform', {
       duration: theme.transitions.duration.shortest,
+    }),
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing.unit * 1,
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
     }),
   },
   expandOpen: {
@@ -107,6 +117,11 @@ const styles = theme => ({
   root: {
     flexGrow: 1,
     alignSelf: 'center',
+  },
+  imageUrlToCopy: {
+    marginTop: '0px',
+    marginBottom: '0px',
+    backgroundColor: 'white',
   },
 });
 
@@ -142,8 +157,8 @@ class ImageDraw extends React.Component {
 
   handleLoadImageClick = () => {
     const { image, uploadInput } = this.props;
-    image.src = uploadInput.value;
-    this.props.loadImage(image);
+    image.src = `/api/proxy/${encodeURIComponent(uploadInput.value)}`;
+    this.props.loadImageSuccess(fromJS(image));
   };
 
   handleUploadInputChange = e => {
@@ -156,6 +171,7 @@ class ImageDraw extends React.Component {
     this.props.resetState();
     this.props.loadImage(fromJS(initialImage));
     this.props.loadTextAttrs(fromJS(initialTextAttrs));
+    this.props.insertPostDBSucces(fromJS({}));
   };
 
   handleCopyToClipboard = () => {
@@ -169,157 +185,135 @@ class ImageDraw extends React.Component {
       base64Meme,
       loadedImage,
       uploadInput,
-      image,
       latestUpload,
     } = this.props;
-    const localWidth =
-      loadedImage && loadedImage.width ? loadedImage.width : image.width;
-    const localHeight =
-      loadedImage && loadedImage.height ? loadedImage.height : image.height;
+
     return (
-      <div className={classes.root}>
-        <Grid
-          item
-          key={1}
-          sm={8}
-          md={6}
-          lg={4}
-          className={classes.containerGrid}
-        >
-          <Card
-            className={classes.card}
-            style={{
-              width: `
-                  ${loadedImage.width}px`,
-            }}
-          >
-            <CardHeader title="Make your own MeMe" />
-            {base64Meme && base64Meme !== '' ? (
-              <a href={base64Meme} download>
-                <img src={base64Meme} alt="img" />
-              </a>
-            ) : (
-              <div
-                id="WorkingCanvas"
-                width={localWidth + 2}
-                height={localHeight + 2}
+      <div className={classes.content}>
+        <Card className={classes.card} style={{ width: loadedImage.width }}>
+          <CardHeader title="Make your own MeMe" />
+          {base64Meme && base64Meme !== '' ? (
+            <a href={base64Meme} download>
+              <img src={base64Meme} alt="img" />
+            </a>
+          ) : (
+            <div
+              id="WorkingCanvas"
+              width={loadedImage.width}
+              height={loadedImage.height}
+            >
+              <Stage
+                width={loadedImage.width}
+                height={loadedImage.height}
+                ref={this.stage}
               >
-                <Stage
-                  width={localWidth + 1}
-                  height={localHeight + 1}
-                  //   ref={ref => {
-                  //     this.stage = ref;
-                  //   }}
-                  ref={this.stage}
+                <Layer ref={this.layer}>
+                  <URLImage />
+                  <MyText name="txt1" />
+                  <MyText name="txt2" />
+                </Layer>
+              </Stage>
+            </div>
+          )}
+          {!base64Meme && base64Meme === '' ? (
+            <CardContent>
+              <Typography component="p">
+                Click Save when your done editing the picture.
+              </Typography>
+            </CardContent>
+          ) : (
+            <CardContent>
+              <Typography component="p">
+                Click the picture to download it.
+              </Typography>
+            </CardContent>
+          )}
+          {!base64Meme && base64Meme === '' ? (
+            <MyTextModifier name="txt1" />
+          ) : (
+            ''
+          )}
+          {!base64Meme && base64Meme === '' ? (
+            <MyTextModifier name="txt2" />
+          ) : (
+            ''
+          )}
+          {!base64Meme && base64Meme === '' ? (
+            <CardActions>
+              <Input
+                className={classes.cardInput}
+                type="text"
+                value={uploadInput.value}
+                onChange={this.handleUploadInputChange}
+                placeholder={uploadInput.placeholder}
+              />
+              <IconButton
+                className={classes.iconAvg}
+                variant="contained"
+                color="default"
+                size="small"
+                onClick={this.handleLoadImageClick}
+              >
+                <CloudUploadIcon className={classes.iconAvg} />
+              </IconButton>
+            </CardActions>
+          ) : (
+            ''
+          )}
+          {base64Meme ? (
+            <>
+              <CardActions className={classes.actions}>
+                <IconButton aria-label="Add to favorites">
+                  <FavoriteIcon />
+                </IconButton>
+                <IconButton aria-label="Share">
+                  <ShareIcon>
+                    <FacebookShareButton url="https://www.npmjs.com/package/react-social-sharing" />
+                  </ShareIcon>
+                </IconButton>
+                <IconButton
+                  variant="contained"
+                  size="small"
+                  onClick={this.handleReset}
                 >
-                  <Layer ref={this.layer}>
-                    <URLImage />
-                    <MyText name="txt1" />
-                    <MyText name="txt2" />
-                  </Layer>
-                </Stage>
-              </div>
-            )}
-            {!base64Meme && base64Meme === '' ? (
-              <CardContent>
-                <Typography component="p">
-                  Click Save when your done editing the picture.
-                </Typography>
-              </CardContent>
-            ) : (
-              <CardContent>
-                <Typography component="p">
-                  Click the picture to download it.
-                </Typography>
-              </CardContent>
-            )}
-            {!base64Meme && base64Meme === '' ? (
-              <MyTextModifier name="txt1" />
-            ) : (
-              ''
-            )}
-            {!base64Meme && base64Meme === '' ? (
-              <MyTextModifier name="txt2" />
-            ) : (
-              ''
-            )}
-            {!base64Meme && base64Meme === '' ? (
-              <CardActions>
-                <Input
-                  className={classes.cardInput}
-                  type="text"
-                  value={uploadInput.value}
-                  onChange={this.handleUploadInputChange}
-                  placeholder={uploadInput.placeholder}
+                  <ReplayIcon />
+                </IconButton>
+                <TextField
+                  id="latestUpload"
+                  label="Image URL"
+                  // defaultValue={latestUpload.url}
+                  value={latestUpload.url}
+                  className={classes.imageUrlToCopy}
+                  margin="normal"
+                  autoFocus
+                  InputProps={{
+                    readOnly: true,
+                    className: classes.imageUrlToCopy,
+                  }}
+                  variant="filled"
                 />
                 <IconButton
-                  className={classes.iconAvg}
                   variant="contained"
                   color="default"
                   size="small"
-                  onClick={this.handleLoadImageClick}
+                  onClick={this.handleCopyToClipboard}
                 >
-                  <CloudUploadIcon className={classes.iconAvg} />
+                  <FileCopySharp />
                 </IconButton>
               </CardActions>
-            ) : (
-              ''
-            )}
-            {base64Meme ? (
-              <>
-                <CardActions className={classes.actions}>
-                  <IconButton aria-label="Add to favorites">
-                    <FavoriteIcon />
-                  </IconButton>
-                  <IconButton aria-label="Share">
-                    <ShareIcon>
-                      <FacebookShareButton url="https://www.npmjs.com/package/react-social-sharing" />
-                    </ShareIcon>
-                  </IconButton>
-                  <IconButton
-                    variant="contained"
-                    size="small"
-                    onClick={this.handleReset}
-                  >
-                    <ReplayIcon />
-                  </IconButton>
-                </CardActions>
-                {latestUpload && latestUpload.url ? (
-                  <CardActions className={classes.actions}>
-                    <Input
-                      className={classes.cardInput}
-                      type="text"
-                      id="latestUpload"
-                      value={latestUpload.url}
-                      readOnly
-                      onClick={this.handleCopyToClipboard}
-                    />
-                    <IconButton
-                      variant="contained"
-                      color="default"
-                      size="small"
-                      onClick={this.handleCopyToClipboard}
-                    >
-                      <FileCopySharp className={classes.iconAvg} />
-                    </IconButton>
-                  </CardActions>
-                ) : (
-                  ''
-                )}
-              </>
-            ) : (
-              <CardActions className={classes.actions}>
-                <IconButton
-                  variant="contained"
-                  size="small"
-                  onClick={this.handleExportClick}
-                >
-                  <SaveIcon />
-                </IconButton>
-              </CardActions>
-            )}
-          </Card>
-        </Grid>
+            </>
+          ) : (
+            <CardActions className={classes.actions}>
+              <IconButton
+                variant="contained"
+                size="small"
+                onClick={this.handleExportClick}
+              >
+                <SaveIcon />
+              </IconButton>
+            </CardActions>
+          )}
+        </Card>
       </div>
     );
   }
@@ -334,18 +328,22 @@ ImageDraw.propTypes = {
   dbUser: PropTypes.object,
   latestUpload: PropTypes.object,
   loadImage: PropTypes.func,
+  loadImageSuccess: PropTypes.func,
   setBase64Img: PropTypes.func,
   setUploadInput: PropTypes.func,
   resetState: PropTypes.func,
   loadTextAttrs: PropTypes.func,
   uploadImage: PropTypes.func,
+  insertPostDBSucces: PropTypes.func,
 };
 
 const mapDispatchToProps = dispatch => ({
   loadImage: image => dispatch(loadImage(image)),
+  loadImageSuccess: image => dispatch(loadImageSuccess(image)),
   setUploadInput: uploadInput => dispatch(setUploadInput(uploadInput)),
   setBase64Img: base64Meme => dispatch(setBase64Meme(base64Meme)),
   loadTextAttrs: textAttrs => dispatch(loadTextAttrs(textAttrs)),
+  insertPostDBSucces: textAttrs => dispatch(insertPostDBSucces(textAttrs)),
   resetState: () => dispatch(resetState()),
   uploadImage: (base64Meme, dbUser) =>
     dispatch(uploadImage(base64Meme, dbUser)),

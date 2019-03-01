@@ -1,20 +1,14 @@
 import auth0 from 'auth0-js';
 import cookie from 'react-cookies';
-
-const REACT_APP_AUTH0_DOMAIN = 'security-tutorial-dev.auth0.com';
-const REACT_APP_AUTH0_CLIENTID = '0rUZeeV3RT8GmXHeMxaItjgBjsIWgNV5';
-const REACT_APP_AUTH0_CALLBACK_URL = 'http://localhost:3000/callback';
-const REACT_APP_AUTH0_AUDIENCE = 'http://localhost:3001';
-// const REACT_APP_API_URL = 'http://localhost:3001';
-const REDIRECT_ON_LOGIN = 'redirect_on_login';
-// eslint-disable-next-line
-let _idToken = null;
-// eslint-disable-next-line
-let _accessToken = null;
-// eslint-disable-next-line
-let _scopes = null;
-// eslint-disable-next-line
-let _expiresAt = null;
+import {
+  APP_IP,
+  APP_PORT,
+  REACT_APP_AUTH0_DOMAIN,
+  REACT_APP_AUTH0_CLIENTID,
+  REACT_APP_AUTH0_AUDIENCE,
+  REACT_APP_AUTH0_CALLBACK_URL,
+  REDIRECT_ON_LOGIN,
+} from '../utils/constants';
 
 export default class Auth {
   constructor(history, setProfile, checkDBUser) {
@@ -90,7 +84,7 @@ export default class Auth {
   logout = () => {
     this.auth0.logout({
       clientID: REACT_APP_AUTH0_CLIENTID,
-      returnTo: 'http://localhost:3000',
+      returnTo: `http://${APP_IP}:${APP_PORT}`,
     });
     this.clearCookies();
   };

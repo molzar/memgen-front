@@ -37,9 +37,7 @@ export class HomePage extends React.PureComponent {
             content="Create your own Meme with our generator"
           />
         </Helmet>
-        <div>
-          <HomePageImgList userID={dbUser.id} />
-        </div>
+        <HomePageImgList userID={dbUser.id} />
       </article>
     );
   }

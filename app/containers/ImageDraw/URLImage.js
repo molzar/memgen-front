@@ -36,14 +36,17 @@ class URLImage extends React.Component {
     this.image.crossOrigin = this.props.image.crossOrigin;
     this.image.addEventListener('load', this.handleLoad);
     this.image.src = this.props.image.src;
-    // if (this.props.loadedImage && this.props.loadedImage.src) {
-    //   this.image.src = this.props.loadedImage.src;
-    // } else {
-
-    // }
   }
 
   handleLoad = () => {
+    this.image.width =
+      this.image.width > window.document.body.offsetWidth
+        ? window.document.body.offsetWidth - 16
+        : this.image.width;
+    this.image.height =
+      this.image.height > window.document.body.offsetHeight
+        ? window.document.body.offsetHeight - 16
+        : this.image.height;
     this.handleLoadedImage(this.image);
     this.setState({
       image: this.image,
@@ -59,10 +62,14 @@ class URLImage extends React.Component {
     textAttrs.txt1.text.x =
       loadedImage.width / 2 - this.imageNode.parent.children[1].textWidth / 2;
     textAttrs.txt1.text.y = 10;
+    textAttrs.txt1.text.width = loadedImage.width;
+    textAttrs.txt1.text.height = loadedImage.height / 2;
     textAttrs.txt2.text.x =
       loadedImage.width / 2 - this.imageNode.parent.children[2].textWidth / 2;
     textAttrs.txt2.text.y =
       loadedImage.height - 10 - this.imageNode.parent.children[2].textHeight;
+    textAttrs.txt2.text.width = loadedImage.width;
+    textAttrs.txt2.text.height = loadedImage.height / 2;
     this.props.loadTextAttrs(fromJS(textAttrs));
   }
 
@@ -70,6 +77,8 @@ class URLImage extends React.Component {
     return (
       <Image
         image={this.state.image}
+        width={this.state.width}
+        height={this.state.height}
         ref={node => {
           this.imageNode = node;
         }}

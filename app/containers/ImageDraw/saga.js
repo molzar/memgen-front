@@ -9,11 +9,10 @@ import {
   insertPostDBSucces,
   insertPostDBFail,
   uploadImageFail,
-  loadImageSuccess,
-  loadImageFail,
 } from './actions';
+import { API_IP, API_PORT } from '../../utils/constants';
 
-import { UPLOAD_IMAGE, INSERT_POST_DB, LOAD_IMAGE } from './constants';
+import { UPLOAD_IMAGE, INSERT_POST_DB } from './constants';
 
 export function* uploadImage(action) {
   const requestURL = 'https://api.imgur.com/3/image/';
@@ -49,7 +48,7 @@ export function* uploadImage(action) {
 }
 
 export function* insertPostDBSaga(action) {
-  const requestURL = `http://localhost:3001/api/posts?url=${
+  const requestURL = `http://${API_IP}:${API_PORT}/api/posts?url=${
     action.responsUpload.data.link
   }&id_user=${action.profile.id}`;
 
@@ -70,39 +69,7 @@ export function* insertPostDBSaga(action) {
   }
 }
 
-export function* getImageFromExternal(action) {
-  const requestURL = action.image.src;
-
-  const options = {
-    method: 'GET',
-    // mode: 'cors',
-    headers: {
-      ContentType: 'image',
-      Accept: 'image',
-    },
-  };
-
-  try {
-    const response = yield call(request, requestURL, options);
-    if (!response) {
-      yield put(loadImageFail(response));
-    } else {
-      yield put(loadImageSuccess(response));
-    }
-  } catch (err) {
-    yield put(loadImageFail(err));
-  }
-}
-
-/**
- * Root saga manages watcher lifecycle
- */
 export default function* initHomeSaga() {
-  // Watches for LOAD_REPOS actions and calls getRepos when one comes in.
-  // By using `takeLatest` only the result of the latest API call is applied.
-  // It returns task descriptor (just like fork) so we can continue execution
-  // It will be cancelled automatically on component unmount
   yield takeLatest(UPLOAD_IMAGE, uploadImage);
   yield takeLatest(INSERT_POST_DB, insertPostDBSaga);
-  yield takeLatest(LOAD_IMAGE, getImageFromExternal);
 }
