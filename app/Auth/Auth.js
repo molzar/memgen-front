@@ -6,7 +6,6 @@ import {
   REACT_APP_AUTH0_DOMAIN,
   REACT_APP_AUTH0_CLIENTID,
   REACT_APP_AUTH0_AUDIENCE,
-  REACT_APP_AUTH0_CALLBACK_URL,
   REDIRECT_ON_LOGIN,
 } from '../utils/constants';
 
@@ -20,7 +19,7 @@ export default class Auth {
     this.auth0 = new auth0.WebAuth({
       domain: REACT_APP_AUTH0_DOMAIN,
       clientID: REACT_APP_AUTH0_CLIENTID,
-      redirectUri: REACT_APP_AUTH0_CALLBACK_URL,
+      redirectUri: `${window.location.origin}/callback`,
       audience: REACT_APP_AUTH0_AUDIENCE,
       responseType: 'token id_token',
       scope: this.requestedScopes,
