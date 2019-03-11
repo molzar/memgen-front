@@ -20,6 +20,10 @@ import {
   LOAD_REPOS_SUCCESS,
   LOAD_REPOS_ERROR,
   SET_USER_PROFILE,
+  USER_LOGIN,
+  USER_DB_NOT_FOUND,
+  USER_DB_FOUND,
+  USER_DB_ERROR,
 } from './constants';
 
 /**
@@ -69,5 +73,39 @@ export function setUserProfile(profile) {
   return {
     type: SET_USER_PROFILE,
     userProfile: profile,
+  };
+}
+
+// export function changeDrawerOpen() {
+//   return {
+//     type: CHANGE_DRAWER_OPEN,
+//   };
+// }
+
+export function checkUserDBNotFound(msg) {
+  return {
+    type: USER_DB_NOT_FOUND,
+    msg,
+  };
+}
+
+export function checkUserDBSucces(profile) {
+  return {
+    type: USER_DB_FOUND,
+    profile,
+  };
+}
+
+export function checkDBUser(profile) {
+  return {
+    type: USER_LOGIN,
+    profile,
+  };
+}
+
+export function checkUserDBError(msg) {
+  return {
+    type: USER_DB_ERROR,
+    msg,
   };
 }

@@ -1,24 +1,20 @@
 import auth0 from 'auth0-js';
-
-const REACT_APP_AUTH0_DOMAIN = 'security-tutorial-dev.auth0.com';
-const REACT_APP_AUTH0_CLIENTID = '0rUZeeV3RT8GmXHeMxaItjgBjsIWgNV5';
-const REACT_APP_AUTH0_CALLBACK_URL = 'http://localhost:3000/callback';
-const REACT_APP_AUTH0_AUDIENCE = 'http://localhost:3001';
-// const REACT_APP_API_URL = 'http://localhost:3001';
-const REDIRECT_ON_LOGIN = 'redirect_on_login';
-// eslint-disable-next-line
-let _idToken = null;
-// eslint-disable-next-line
-let _accessToken = null;
-// eslint-disable-next-line
-let _scopes = null;
-// eslint-disable-next-line
-let _expiresAt = null;
+import cookie from 'react-cookies';
+import {
+  APP_IP,
+  APP_PORT,
+  REACT_APP_AUTH0_DOMAIN,
+  REACT_APP_AUTH0_CLIENTID,
+  REACT_APP_AUTH0_AUDIENCE,
+  REACT_APP_AUTH0_CALLBACK_URL,
+  REDIRECT_ON_LOGIN,
+} from '../utils/constants';
 
 export default class Auth {
-  constructor(history, setProfile) {
+  constructor(history, setProfile, checkDBUser) {
     this.history = history;
     this.setProfile = setProfile;
+    this.checkDBUser = checkDBUser;
     this.requestedScopes = 'openid profile email';
 
     this.auth0 = new auth0.WebAuth({
@@ -47,6 +43,7 @@ export default class Auth {
           this.getAccessToken(),
           (errInfo, profile) => {
             this.setProfile(profile);
+            this.checkDBUser(profile);
           },
         );
 
@@ -68,43 +65,63 @@ export default class Auth {
   };
 
   setSession = authResult => {
-    _expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
-    _scopes = authResult.scope || this.requestedScopes || '';
-    _accessToken = authResult.accessToken;
-    _idToken = authResult.idToken;
+    cookie.save(
+      'expiresAt',
+      authResult.expiresIn * 100000 + new Date().getTime(),
+      { path: '/' },
+    );
+    cookie.save('scopes', authResult.scope || this.requestedScopes || '', {
+      path: '/',
+    });
+    cookie.save('accessToken', authResult.accessToken, { path: '/' });
+    cookie.save('idToken', authResult.idToken, { path: '/' });
   };
 
   isAuthenticated() {
-    return new Date().getTime() < _expiresAt;
+    return new Date().getTime() < cookie.load('expiresAt');
   }
 
   logout = () => {
     this.auth0.logout({
       clientID: REACT_APP_AUTH0_CLIENTID,
-      returnTo: 'http://localhost:3000',
+      returnTo: `http://${APP_IP}:${APP_PORT}`,
     });
+    this.clearCookies();
   };
 
+  clearCookies() {
+    cookie.remove('expiresAt', { path: '/' });
+    cookie.remove('scopes', { path: '/' });
+    cookie.remove('accessToken', { path: '/' });
+    cookie.remove('idToken', { path: '/' });
+  }
+
   getAccessToken = () => {
-    const accessToken = _accessToken;
+    const accessToken = cookie.load('accessToken');
     if (!accessToken) {
-      throw new Error('No access token found.');
+      this.login(); // throw new Error('No access token found.');
     }
     return accessToken;
   };
 
   getProfile = cb => {
-    if (this.userProfile) return cb(this.userProfile);
-    this.auth0.client.userInfo(this.getAccessToken(), (err, profile) => {
-      if (profile) this.userProfile = profile;
-      cb(profile, err);
-    });
-    return cb(this.userProfile);
+    if (this.auth0) {
+      this.auth0.client.userInfo(cookie.load('accessToken'), (err, profile) => {
+        if (profile) {
+          this.setProfile(profile);
+          this.checkDBUser(profile);
+        } else {
+          this.clearCookies();
+          this.login();
+        }
+        cb(err, profile);
+      });
+    }
+    cb('ERROR', '');
   };
 
-  userHasScopes(scopes) {
-    const grantedScopes = (_scopes || '').split(' ');
-
+  userHasScopes = scopes => {
+    const grantedScopes = (cookie.load('scopes') || '').split(' ');
     return scopes.every(scope => grantedScopes.includes(scope));
-  }
+  };
 }

@@ -31,11 +31,12 @@ export function changeUsername(name) {
   };
 }
 
-export function loadMemes(limit, offset) {
+export function loadMemes(limit, offset, userID) {
   return {
     type: LOAD_MEMES,
     limit,
     offset,
+    userID,
   };
 }
 
