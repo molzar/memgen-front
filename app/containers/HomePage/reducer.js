@@ -25,7 +25,7 @@ function homeReducer(state = initialState, action) {
       // Delete prefixed '@' from the github username
       return state.set('username', action.name.replace(/@/gi, ''));
     case LOAD_MEMES_SUCCESS:
-      return state.set('memes', action.memes);
+      return state.set('memes', fromJS(action.memes));
     default:
       return state;
   }

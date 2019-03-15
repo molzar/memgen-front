@@ -22,7 +22,7 @@ import { makeSelectUsername } from './selectors';
 
 import reducer from './reducer';
 import saga from './saga';
-import HomePageImgList from './HomePageImgList';
+import ListItemsPage from './ListItemsPage';
 
 export class HomePage extends React.PureComponent {
   // eslint-disable-line react/prefer-stateless-function
@@ -37,7 +37,7 @@ export class HomePage extends React.PureComponent {
             content="Create your own Meme with our generator"
           />
         </Helmet>
-        <HomePageImgList userID={dbUser.id} />
+        <ListItemsPage userID={dbUser.id} />
       </article>
     );
   }

@@ -24,6 +24,9 @@ import {
   USER_DB_NOT_FOUND,
   USER_DB_FOUND,
   USER_DB_ERROR,
+  UPDATE_GRID_PROPS,
+  UPDATE_GRID_PROPS_ERROR,
+  FIND_PAGES,
 } from './constants';
 
 /**
@@ -76,12 +79,6 @@ export function setUserProfile(profile) {
   };
 }
 
-// export function changeDrawerOpen() {
-//   return {
-//     type: CHANGE_DRAWER_OPEN,
-//   };
-// }
-
 export function checkUserDBNotFound(msg) {
   return {
     type: USER_DB_NOT_FOUND,
@@ -107,5 +104,26 @@ export function checkUserDBError(msg) {
   return {
     type: USER_DB_ERROR,
     msg,
+  };
+}
+
+export function updateGridProps(gridProps) {
+  return {
+    type: UPDATE_GRID_PROPS,
+    gridProps,
+  };
+}
+
+export function updateGridPropsError(msg) {
+  return {
+    type: UPDATE_GRID_PROPS_ERROR,
+    msg,
+  };
+}
+
+export function findPages(gridProps) {
+  return {
+    type: FIND_PAGES,
+    gridProps,
   };
 }

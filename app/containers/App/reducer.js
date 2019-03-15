@@ -21,6 +21,7 @@ import {
   USER_DB_FOUND,
   USER_DB_ERROR,
   USER_DB_NOT_FOUND,
+  UPDATE_GRID_PROPS,
 } from './constants';
 
 // The initial state of the App
@@ -34,7 +35,7 @@ const initialState = fromJS({
   drawerOpen: false,
   dbUser: {},
   dbUserError: {},
-  gridProps: { limit: 0, offset: 100 },
+  gridProps: { limit: 0, offset: 100, pages: 1 },
 });
 
 function appReducer(state = initialState, action) {
@@ -61,6 +62,8 @@ function appReducer(state = initialState, action) {
       return state.set('dbUserError', action.msg);
     case USER_DB_NOT_FOUND:
       return state.set('dbUserError', action);
+    case UPDATE_GRID_PROPS:
+      return state.set('gridProps', action.gridProps);
     default:
       return state;
   }

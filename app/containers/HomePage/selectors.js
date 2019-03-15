@@ -11,6 +11,6 @@ const makeSelectUsername = () =>
   createSelector(selectHome, homeState => homeState.get('username'));
 
 const makeSelectMemes = () =>
-  createSelector(selectHome, homeState => homeState.get('memes'));
+  createSelector(selectHome, homeState => homeState.get('memes').toJS());
 
 export { selectHome, makeSelectUsername, makeSelectMemes };

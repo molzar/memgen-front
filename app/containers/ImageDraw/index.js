@@ -72,7 +72,8 @@ const styles = theme => ({
     width: '100%',
   },
   card: {
-    maxWidth: 1200,
+    textAlign: 'center',
+    margin: 'auto',
     // minWidth: 350,
   },
   media: {
@@ -91,6 +92,9 @@ const styles = theme => ({
   },
   content: {
     flexGrow: 1,
+    position: 'relative',
+    width: '100%',
+    height: '100%',
     padding: theme.spacing.unit * 1,
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,

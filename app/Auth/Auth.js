@@ -1,13 +1,7 @@
 import auth0 from 'auth0-js';
 import cookie from 'react-cookies';
-import {
-  APP_IP,
-  APP_PORT,
-  REACT_APP_AUTH0_DOMAIN,
-  REACT_APP_AUTH0_CLIENTID,
-  REACT_APP_AUTH0_AUDIENCE,
-  REDIRECT_ON_LOGIN,
-} from '../utils/constants';
+
+import Config from '../../server/conf/config';
 
 export default class Auth {
   constructor(history, setProfile, checkDBUser) {
@@ -17,10 +11,10 @@ export default class Auth {
     this.requestedScopes = 'openid profile email';
 
     this.auth0 = new auth0.WebAuth({
-      domain: REACT_APP_AUTH0_DOMAIN,
-      clientID: REACT_APP_AUTH0_CLIENTID,
+      domain: Config.auth0Domain,
+      clientID: Config.auth0Clientid,
       redirectUri: `${window.location.origin}/callback`,
-      audience: REACT_APP_AUTH0_AUDIENCE,
+      audience: Config.auth0Audience,
       responseType: 'token id_token',
       scope: this.requestedScopes,
     });
@@ -28,7 +22,7 @@ export default class Auth {
 
   login = () => {
     localStorage.setItem(
-      REDIRECT_ON_LOGIN,
+      Config.redirectOnLogin,
       JSON.stringify(this.history.location),
     );
     this.auth0.authorize();
@@ -47,9 +41,9 @@ export default class Auth {
         );
 
         const redirectLocation =
-          localStorage.getItem(REDIRECT_ON_LOGIN) &&
-          JSON.parse(localStorage.getItem(REDIRECT_ON_LOGIN)).pathname
-            ? JSON.parse(localStorage.getItem(REDIRECT_ON_LOGIN)).pathname
+          localStorage.getItem(Config.redirectOnLogin) &&
+          JSON.parse(localStorage.getItem(Config.redirectOnLogin)).pathname
+            ? JSON.parse(localStorage.getItem(Config.redirectOnLogin)).pathname
             : '/';
         this.history.push(redirectLocation);
       } else if (err) {
@@ -59,7 +53,7 @@ export default class Auth {
         // eslint-disable-next-line
         console.table(err);
       }
-      localStorage.removeItem(REDIRECT_ON_LOGIN);
+      localStorage.removeItem(Config.redirectOnLogin);
     });
   };
 
@@ -82,8 +76,8 @@ export default class Auth {
 
   logout = () => {
     this.auth0.logout({
-      clientID: REACT_APP_AUTH0_CLIENTID,
-      returnTo: `http://${APP_IP}:${APP_PORT}`,
+      clientID: Config.auth0Clientid,
+      returnTo: `http://${Config.appHost}:${Config.appPort}`,
     });
     this.clearCookies();
   };

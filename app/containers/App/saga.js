@@ -1,15 +1,18 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import request from 'utils/request';
+import { fromJS } from 'immutable';
 import {
   checkUserDBSucces,
   checkUserDBError,
   checkUserDBNotFound,
+  updateGridProps,
+  updateGridPropsError,
 } from './actions';
-import { USER_LOGIN, USER_DB_NOT_FOUND } from './constants';
-import { API_IP, API_PORT } from '../../utils/constants';
+import { USER_LOGIN, USER_DB_NOT_FOUND, FIND_PAGES } from './constants';
+import Config from '../../../server/conf/config';
 
 export function* checkUserDB(action) {
-  const requestURL = `http://${API_IP}:${API_PORT}/api/users/${
+  const requestURL = `http://${Config.apiHost}:${Config.apiPort}/api/users/${
     action.profile.email
   }`;
   const options = {
@@ -29,11 +32,11 @@ export function* checkUserDB(action) {
 }
 
 export function* insertUserDB(action) {
-  const requestURL = `http://${API_IP}:${API_PORT}/api/users?username=${
+  const requestURL = `http://${Config.apiHost}:${
+    Config.apiPort
+  }/api/users?username=${action.msg.profile.email}&password=&email=${
     action.msg.profile.email
-  }&password=&email=${action.msg.profile.email}&description=&avatarurl=${
-    action.msg.profile.picture
-  }&age=`;
+  }&description=&avatarurl=${action.msg.profile.picture}&age=`;
 
   const options = {
     method: 'POST',
@@ -51,7 +54,32 @@ export function* insertUserDB(action) {
   }
 }
 
+export function* findPages(action) {
+  const requestURL = `http://${Config.apiHost}:${
+    Config.apiPort
+  }/api/posts/get/count/all`;
+
+  const options = {
+    method: 'GET',
+  };
+
+  try {
+    const response = yield call(request, requestURL, options);
+    const newGridPros = action.gridProps;
+    if (!response || !response.success) {
+      newGridPros.pages = 1;
+      yield put(updateGridProps(fromJS(newGridPros)));
+    } else {
+      newGridPros.pages = Math.round(response.data / newGridPros.offset);
+      yield put(updateGridProps(fromJS(newGridPros)));
+    }
+  } catch (err) {
+    yield put(updateGridPropsError(err));
+  }
+}
+
 export default function* initAppSaga() {
   yield takeLatest(USER_LOGIN, checkUserDB);
   yield takeLatest(USER_DB_NOT_FOUND, insertUserDB);
+  yield takeLatest(FIND_PAGES, findPages);
 }

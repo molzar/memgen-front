@@ -1,7 +1,3 @@
-/**
- * Gets the repositories of the user from Github
- */
-
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { LOAD_REPOS } from 'containers/App/constants';
 
@@ -11,7 +7,7 @@ import request from 'utils/request';
 import { makeSelectUsername } from 'containers/HomePage/selectors';
 import { loadMemesSuccess } from './actions';
 import { LOAD_MEMES } from './constants';
-import { API_IP, API_PORT } from '../../utils/constants';
+import Config from '../../../server/conf/config';
 /**
  * Github repos request/response handler
  */
@@ -35,9 +31,10 @@ export function* getRepos(action) {
 export function* getMemes(action) {
   // Select username from store
   const requestURL = action.userID
-    ? `http://${API_IP}:${API_PORT}/api/posts/${action.userID}/
+    ? `http://${Config.apiHost}:${Config.apiPort}/api/posts/${action.userID}/
     ${action.limit}&${action.offset}`
-    : `http://${API_IP}:${API_PORT}/api/posts/${action.limit}&${action.offset}`;
+    : `http://${Config.apiHost}:${Config.apiPort}/api/posts/
+    ${action.limit}&${action.offset}`;
 
   const options = {
     method: 'GET',
