@@ -70,7 +70,7 @@ export function* findPages(action) {
       newGridPros.pages = 1;
       yield put(updateGridProps(fromJS(newGridPros)));
     } else {
-      newGridPros.pages = Math.round(response.data / newGridPros.offset);
+      newGridPros.pages = Math.round(response.data / newGridPros.limit);
       yield put(updateGridProps(fromJS(newGridPros)));
     }
   } catch (err) {

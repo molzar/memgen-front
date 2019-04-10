@@ -39,6 +39,7 @@ export function* uploadImage(action) {
     if (!response || !response.success) {
       yield put(uploadImageFail(response));
     } else {
+      debugger;
       yield put(insertPostDB(response, action.profile));
     }
   } catch (err) {
@@ -70,7 +71,7 @@ export function* insertPostDBSaga(action) {
   }
 }
 
-export default function* initHomeSaga() {
+export default function* initImageSaga() {
   yield takeLatest(UPLOAD_IMAGE, uploadImage);
   yield takeLatest(INSERT_POST_DB, insertPostDBSaga);
 }

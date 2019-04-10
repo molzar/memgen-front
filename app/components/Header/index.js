@@ -10,7 +10,8 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Avatar from '@material-ui/core/Avatar';
-import Drawer from '@material-ui/core/Drawer';
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
+
 import CssBaseline from '@material-ui/core/CssBaseline';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
@@ -29,9 +30,7 @@ const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
-    // flexGrow: 1,
     display: 'flex',
-    height: '90px',
   },
   grow: {
     flexGrow: 1,
@@ -43,14 +42,6 @@ const styles = theme => ({
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: drawerWidth,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
     }),
   },
   menuButton: {
@@ -107,6 +98,12 @@ class Header extends React.Component {
     }
   }
 
+  toggleDrawer = open => () => {
+    this.setState({
+      open,
+    });
+  };
+
   handleDrawerOpen = () => {
     this.setState({ open: true });
   };
@@ -123,12 +120,7 @@ class Header extends React.Component {
       <>
         <div className={classes.root}>
           <CssBaseline />
-          <AppBar
-            position="fixed"
-            className={classNames(classes.appBar, {
-              [classes.appBarShift]: this.state.open,
-            })}
-          >
+          <AppBar position="fixed" className={classes.appBar}>
             <Toolbar disableGutters={!this.state.open}>
               <IconButton
                 color="inherit"
@@ -170,60 +162,57 @@ class Header extends React.Component {
               </Button>
             </Toolbar>
           </AppBar>
-          <Drawer
-            className={classes.drawer}
-            variant="persistent"
-            anchor="left"
-            open={this.state.open}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            <div className={classes.drawerHeader}>
-              <IconButton onClick={this.handleDrawerClose}>
-                {theme.direction === 'ltr' ? (
-                  <ChevronLeftIcon style={{ fontSize: 40, margin: 10 }} />
-                ) : (
-                  <ChevronRightIcon style={{ fontSize: 40, margin: 10 }} />
-                )}
-              </IconButton>
-            </div>
-            <Divider />
-            <List>
-              <Link style={{ textDecoration: 'none' }} to="/">
-                <ListItem button key="All MeMes">
-                  <ListItemIcon>
-                    <HomeSharp />
-                  </ListItemIcon>
-                  <ListItemText primary="All MeMes" />
-                </ListItem>
-              </Link>
-              {isAuthenticated() ? (
-                <>
-                  <Link style={{ textDecoration: 'none' }} to="/imageDraw">
-                    <ListItem button key="Make MeMe">
-                      <ListItemIcon>
-                        <AddAPhotoSharp />
-                      </ListItemIcon>
-                      <ListItemText primary="Make MeMe" />
-                    </ListItem>
-                  </Link>
-
-                  <Link style={{ textDecoration: 'none' }} to="/myMemes">
-                    <ListItem button key="My MeMes">
-                      <ListItemIcon>
-                        <PhotoLibrarySharp />
-                      </ListItemIcon>
-                      <ListItemText primary="My MeMes" />
-                    </ListItem>
-                  </Link>
-                </>
-              ) : (
-                ''
-              )}
-            </List>
-          </Drawer>
         </div>
+        <SwipeableDrawer
+          open={this.state.open}
+          className={classes.drawer}
+          onClose={this.toggleDrawer(false)}
+          onOpen={this.toggleDrawer(true)}
+        >
+          <div className={classes.drawerHeader}>
+            <IconButton onClick={this.handleDrawerClose}>
+              {theme.direction === 'ltr' ? (
+                <ChevronLeftIcon style={{ fontSize: 40, margin: 10 }} />
+              ) : (
+                <ChevronRightIcon style={{ fontSize: 40, margin: 10 }} />
+              )}
+            </IconButton>
+          </div>
+          <Divider />
+          <List onClick={this.toggleDrawer(false)}>
+            <Link style={{ textDecoration: 'none' }} to="/">
+              <ListItem button key="All MeMes">
+                <ListItemIcon>
+                  <HomeSharp />
+                </ListItemIcon>
+                <ListItemText primary="All MeMes" />
+              </ListItem>
+            </Link>
+            {isAuthenticated() ? (
+              <>
+                <Link style={{ textDecoration: 'none' }} to="/imageDraw">
+                  <ListItem button key="Make MeMe">
+                    <ListItemIcon>
+                      <AddAPhotoSharp />
+                    </ListItemIcon>
+                    <ListItemText primary="Make MeMe" />
+                  </ListItem>
+                </Link>
+
+                <Link style={{ textDecoration: 'none' }} to="/myMemes">
+                  <ListItem button key="My MeMes">
+                    <ListItemIcon>
+                      <PhotoLibrarySharp />
+                    </ListItemIcon>
+                    <ListItemText primary="My MeMes" />
+                  </ListItem>
+                </Link>
+              </>
+            ) : (
+              ''
+            )}
+          </List>
+        </SwipeableDrawer>
       </>
     );
   }

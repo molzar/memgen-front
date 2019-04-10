@@ -26,6 +26,9 @@ const styles = () => ({
   popover: {
     position: 'absolute',
     zIndex: '2',
+    top: '50%',
+    left: '50%',
+    marginLeft: '-50px',
   },
   cover: {
     position: 'fixed',
@@ -33,6 +36,9 @@ const styles = () => ({
     right: '0px',
     bottom: '0px',
     left: '0px',
+  },
+  colorPickerDiv: {
+    paddingTop: '10px',
   },
 });
 
@@ -58,7 +64,7 @@ class ColorPicker extends React.Component {
   render() {
     const { textAttrs, name, classes } = this.props;
     return (
-      <div>
+      <div className={classes.colorPickerDiv}>
         <Button
           className={classes.swatch}
           onClick={this.handleClick(name)}

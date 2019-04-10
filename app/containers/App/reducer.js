@@ -35,7 +35,7 @@ const initialState = fromJS({
   drawerOpen: false,
   dbUser: {},
   dbUserError: {},
-  gridProps: { limit: 0, offset: 100, pages: 1 },
+  gridProps: { limit: 100, offset: 0, pages: 1 },
 });
 
 function appReducer(state = initialState, action) {

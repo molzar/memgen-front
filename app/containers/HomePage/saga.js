@@ -5,9 +5,8 @@ import { reposLoaded, repoLoadingError } from 'containers/App/actions';
 
 import request from 'utils/request';
 import { makeSelectUsername } from 'containers/HomePage/selectors';
-import { loadMemesSuccess } from './actions';
-import { LOAD_MEMES } from './constants';
-import Config from '../../../server/conf/config';
+import { loadMemesSuccess, updateMemeAfterLike } from './actions';
+import { LOAD_MEMES, LIKE_DISLIKE } from './constants';
 /**
  * Github repos request/response handler
  */
@@ -31,11 +30,8 @@ export function* getRepos(action) {
 export function* getMemes(action) {
   // Select username from store
   const requestURL = action.userID
-    ? `http://${Config.apiHost}:${Config.apiPort}/api/posts/${action.userID}/
-    ${action.limit}&${action.offset}`
-    : `http://${Config.apiHost}:${Config.apiPort}/api/posts/
-    ${action.limit}&${action.offset}`;
-
+    ? `/api/posts/${action.userID}/${action.limit}&${action.offset}`
+    : `/api/posts/${action.limit}&${action.offset}`;
   const options = {
     method: 'GET',
   };
@@ -48,8 +44,29 @@ export function* getMemes(action) {
       yield put(loadMemesSuccess(memes.data));
     }
   } catch (err) {
-    // yield put(repoLoadingError(err));
     yield put(loadMemesSuccess([]));
+  }
+}
+
+export function* insertLikePostUserDB(action) {
+  const requestURL = `/api/likes?id_post=${
+    action.likeDislikeObjToSend.postId
+  }&id_user=${action.likeDislikeObjToSend.userId}&like=${
+    action.likeDislikeObjToSend.like
+  }`;
+
+  const options = {
+    method: 'POST',
+  };
+  try {
+    const response = yield call(request, requestURL, options);
+    if (!response || !response.success || !response.data) {
+      yield put(updateMemeAfterLike([]));
+    } else {
+      yield put(updateMemeAfterLike(response.data[0]));
+    }
+  } catch (err) {
+    yield put(updateMemeAfterLike([]));
   }
 }
 
@@ -63,4 +80,5 @@ export default function* initHomeSaga() {
   // It will be cancelled automatically on component unmount
   yield takeLatest(LOAD_REPOS, getRepos);
   yield takeLatest(LOAD_MEMES, getMemes);
+  yield takeLatest(LIKE_DISLIKE, insertLikePostUserDB);
 }

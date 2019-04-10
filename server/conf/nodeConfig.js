@@ -1,12 +1,12 @@
 const currentProcess = process.env.NODE_ENV;
 
 const BaseConfig = {
-  apiHost: '10.185.22.80',
+  apiHost: 'localhost',
   apiPort: '3001',
 };
 
 const ProdConfig = {
-  apiHost: '10.185.22.80',
+  apiHost: 'localhost',
   apiPort: '3001',
 };
 

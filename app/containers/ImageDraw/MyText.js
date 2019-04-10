@@ -77,8 +77,6 @@ class MyText extends React.Component {
         x={textAttrs[name].text.x}
         y={textAttrs[name].text.y}
         wrap="word"
-        // width={460}
-        // height={480}
         draggable
         fontSize={textAttrs[name].text.fontSize}
         fontFamily={textAttrs[name].text.fontFamily}

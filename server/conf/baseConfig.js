@@ -1,8 +1,9 @@
 export const BaseConfig = {
-  appHost: '10.185.22.80',
+  appHost: 'localhost',
   appPort: '3000',
-  apiHost: '10.185.22.80',
+  apiHost: 'localhost',
   apiPort: '3001',
+  shareDomain: 'http://mydomain',
   auth0Domain: 'security-tutorial-dev.auth0.com',
   auth0Clientid: '0rUZeeV3RT8GmXHeMxaItjgBjsIWgNV5',
   auth0Audience: 'https://security-tutorial-dev.auth0.com/api/v2/',

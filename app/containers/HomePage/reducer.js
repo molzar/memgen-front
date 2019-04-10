@@ -11,12 +11,17 @@
  */
 import { fromJS } from 'immutable';
 
-import { CHANGE_USERNAME, LOAD_MEMES_SUCCESS } from './constants';
+import {
+  CHANGE_USERNAME,
+  LOAD_MEMES_SUCCESS,
+  UPDATE_MEME_AFTER_LIKE,
+} from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
   username: '',
   memes: [],
+  comments: [],
 });
 
 function homeReducer(state = initialState, action) {
@@ -26,6 +31,12 @@ function homeReducer(state = initialState, action) {
       return state.set('username', action.name.replace(/@/gi, ''));
     case LOAD_MEMES_SUCCESS:
       return state.set('memes', fromJS(action.memes));
+    case UPDATE_MEME_AFTER_LIKE: {
+      const oldMemes = state.get('memes').toJS();
+      oldMemes[oldMemes.findIndex(meme => meme.id === action.newMeme.id)] =
+        action.newMeme;
+      return state.set('memes', fromJS(oldMemes));
+    }
     default:
       return state;
   }
