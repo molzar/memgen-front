@@ -19,3 +19,7 @@ export const USER_LOGIN_SUCCESS = 'boilerplate/Home/USER_LOGIN_SUCCESS';
 export const USER_DB_ERROR = 'boilerplate/Home/USER_DB_ERROR';
 export const USER_DB_FOUND = 'boilerplate/Home/USER_DB_FOUND';
 export const USER_DB_NOT_FOUND = 'boilerplate/Home/USER_DB_NOT_FOUND';
+export const UPDATE_GRID_PROPS = 'boilerplate/Home/UPDATE_GRID_PROPS';
+export const UPDATE_GRID_PROPS_ERROR =
+  'boilerplate/Home/UPDATE_GRID_PROPS_ERROR';
+export const FIND_PAGES = 'boilerplate/Home/FIND_PAGES';

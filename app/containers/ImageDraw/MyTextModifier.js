@@ -3,12 +3,10 @@ import { fromJS } from 'immutable';
 import PropTypes from 'prop-types';
 import Input from '@material-ui/core/Input';
 import { withStyles } from '@material-ui/core/styles';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputLabel from '@material-ui/core/InputLabel';
+import InputBase from '@material-ui/core/InputBase';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import CardActions from '@material-ui/core/CardActions';
 import red from '@material-ui/core/colors/red';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
@@ -16,6 +14,42 @@ import { createStructuredSelector } from 'reselect';
 import { loadTextAttrs } from './actions';
 import { makeSelectTextAttrs } from './selectors';
 import ColorPicker from './ColorPicker';
+
+const BootstrapInput = withStyles(theme => ({
+  root: {
+    'label + &': {
+      marginTop: theme.spacing.unit * 3,
+    },
+  },
+  input: {
+    borderRadius: 4,
+    position: 'relative',
+    backgroundColor: theme.palette.background.paper,
+    border: '1px solid #ced4da',
+    fontSize: 16,
+    width: 'auto',
+    padding: '10px 26px 10px 12px',
+    transition: theme.transitions.create(['border-color', 'box-shadow']),
+    // Use the system font instead of the default Roboto font.
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
+    '&:focus': {
+      borderRadius: 4,
+      borderColor: '#80bdff',
+      boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
+    },
+  },
+}))(InputBase);
 
 const styles = theme => ({
   button: {
@@ -35,6 +69,7 @@ const styles = theme => ({
   },
   cardInput: {
     width: '100%',
+    paddingLeft: '5px',
   },
   card: {
     maxWidth: 400,
@@ -68,6 +103,12 @@ const styles = theme => ({
     minWidth: 90,
     height: 35,
   },
+  modifierRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    paddingLeft: '10px',
+    paddingRight: '10px',
+  },
 });
 
 class MyTextModifier extends React.Component {
@@ -86,7 +127,7 @@ class MyTextModifier extends React.Component {
   render() {
     const { classes, textAttrs, name } = this.props;
     return (
-      <CardActions>
+      <div className={classes.modifierRow}>
         <Input
           className={classes.cardInput}
           type="text"
@@ -94,37 +135,26 @@ class MyTextModifier extends React.Component {
           onChange={this.handleTextChange(name)}
         />
         <form className={classes.container} noValidate autoComplete="off">
-          <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel
-              ref={ref => {
-                this.InputLabelRef = ref;
-              }}
-              htmlFor={`font-size-${name}`}
-            >
-              Size
-            </InputLabel>
+          <FormControl className={classes.formControl}>
             <Select
               value={textAttrs[name].text.fontSize}
               onChange={this.handleSelectChange(name)}
               autoWidth
-              input={
-                <OutlinedInput
-                  labelWidth={30}
-                  name="age"
-                  id={`font-size-${name}`}
-                />
-              }
+              input={<BootstrapInput name="age" id="age-customized-select" />}
             >
-              {[...Array(99).keys()].map(x => (
-                <MenuItem value={x} key={x}>
-                  {x}
-                </MenuItem>
-              ))}
+              {[...Array(15).keys()].map(
+                x =>
+                  x !== 0 && (
+                    <MenuItem value={x * 5} key={x}>
+                      {x * 5}
+                    </MenuItem>
+                  ),
+              )}
             </Select>
           </FormControl>
         </form>
         <ColorPicker name={name} />
-      </CardActions>
+      </div>
     );
   }
 }

@@ -15,7 +15,13 @@
  *    }
  */
 
-import { CHANGE_USERNAME, LOAD_MEMES, LOAD_MEMES_SUCCESS } from './constants';
+import {
+  CHANGE_USERNAME,
+  LOAD_MEMES,
+  LOAD_MEMES_SUCCESS,
+  LIKE_DISLIKE,
+  UPDATE_MEME_AFTER_LIKE,
+} from './constants';
 
 /**
  * Changes the input field of the form
@@ -44,5 +50,19 @@ export function loadMemesSuccess(memes) {
   return {
     type: LOAD_MEMES_SUCCESS,
     memes,
+  };
+}
+
+export function likeDislike(likeDislikeObjToSend) {
+  return {
+    type: LIKE_DISLIKE,
+    likeDislikeObjToSend,
+  };
+}
+
+export function updateMemeAfterLike(newMeme) {
+  return {
+    type: UPDATE_MEME_AFTER_LIKE,
+    newMeme,
   };
 }

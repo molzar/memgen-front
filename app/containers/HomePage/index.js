@@ -22,12 +22,12 @@ import { makeSelectUsername } from './selectors';
 
 import reducer from './reducer';
 import saga from './saga';
-import HomePageImgList from './HomePageImgList';
+import ListItemsPageVirtualized from './ListItemsPageVirtualized';
 
 export class HomePage extends React.PureComponent {
   // eslint-disable-line react/prefer-stateless-function
   render() {
-    const { dbUser } = this.props;
+    const { dbUser, auth } = this.props;
     return (
       <article>
         <Helmet>
@@ -37,7 +37,11 @@ export class HomePage extends React.PureComponent {
             content="Create your own Meme with our generator"
           />
         </Helmet>
-        <HomePageImgList userID={dbUser.id} />
+        <ListItemsPageVirtualized
+          userID={dbUser.id}
+          auth={auth}
+          dbUser={dbUser}
+        />
       </article>
     );
   }
@@ -45,6 +49,7 @@ export class HomePage extends React.PureComponent {
 
 HomePage.propTypes = {
   dbUser: PropTypes.object,
+  auth: PropTypes.object,
 };
 
 const mapStateToProps = createStructuredSelector({

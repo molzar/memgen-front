@@ -12,3 +12,5 @@
 export const CHANGE_USERNAME = 'boilerplate/Home/CHANGE_USERNAME';
 export const LOAD_MEMES = 'boilerplate/Home/LOAD_MEMES';
 export const LOAD_MEMES_SUCCESS = 'boilerplate/Home/LOAD_MEMES_SUCCESS';
+export const LIKE_DISLIKE = 'boilerplate/Home/LIKE_DISLIKE';
+export const UPDATE_MEME_AFTER_LIKE = 'boilerplate/Home/UPDATE_MEME_AFTER_LIKE';

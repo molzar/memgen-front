@@ -2,7 +2,8 @@ const path = require('path');
 const express = require('express');
 const compression = require('compression');
 const proxy = require('http-proxy-middleware');
-const constants = require('../utils');
+const Config = require('../conf/nodeConfig');
+
 module.exports = function addProdMiddlewares(app, options) {
   const publicPath = options.publicPath || '/';
   const outputPath = options.outputPath || path.resolve(process.cwd(), 'build');
@@ -14,7 +15,7 @@ module.exports = function addProdMiddlewares(app, options) {
   app.use(publicPath, express.static(outputPath));
   app.use(
     proxy('/api', {
-      target: `http://${constants.API_IP}:${constants.API_PORT}/`,
+      target: `http://${Config.apiHost}:${Config.apiPort}/`,
     }),
   );
 

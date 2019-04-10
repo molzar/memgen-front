@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
 const proxy = require('http-proxy-middleware');
-const constants = require('../utils');
+const Config = require('../conf/nodeConfig');
 
 function createWebpackMiddleware(compiler, publicPath) {
   return webpackDevMiddleware(compiler, {
@@ -25,7 +25,7 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
   app.use(webpackHotMiddleware(compiler));
   app.use(
     proxy('/api', {
-      target: `http://${constants.API_IP}:${constants.API_PORT}/`,
+      target: `http://${Config.apiHost}:${Config.apiPort}/`,
     }),
   );
   // Since webpackDevMiddleware uses memory-fs internally to store build

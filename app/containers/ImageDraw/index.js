@@ -22,8 +22,19 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import injectReducer from 'utils/injectReducer';
-import { FacebookShareButton } from 'react-share';
 import { Stage, Layer } from 'react-konva';
+import {
+  FacebookShareButton,
+  FacebookIcon,
+  TelegramIcon,
+  TelegramShareButton,
+  TwitterIcon,
+  TwitterShareButton,
+  RedditIcon,
+  RedditShareButton,
+  FacebookShareCount,
+  RedditShareCount,
+} from 'react-share';
 import saga from './saga';
 import reducer, {
   image as initialImage,
@@ -66,14 +77,15 @@ const styles = theme => ({
     fontSize: 20,
   },
   iconAvg: {
-    fontSize: 50,
+    fontSize: 28,
   },
   cardInput: {
     width: '100%',
   },
   card: {
-    maxWidth: 1200,
-    // minWidth: 350,
+    textAlign: 'center',
+    margin: 'auto',
+    paddingBottom: '10px',
   },
   media: {
     height: 0,
@@ -91,6 +103,10 @@ const styles = theme => ({
   },
   content: {
     flexGrow: 1,
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    paddingTop: '90px',
     padding: theme.spacing.unit * 1,
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
@@ -122,6 +138,30 @@ const styles = theme => ({
     marginTop: '0px',
     marginBottom: '0px',
     backgroundColor: 'white',
+  },
+  saveRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    padding: '0px',
+  },
+  saveRowElement: {
+    margin: 'auto',
+  },
+  modifierRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    paddingLeft: '10px',
+    paddingRight: '10px',
+  },
+  somePadding: {
+    margin: '5px',
+    boxShadow: '0.1px 0.1px 0.1px 2px rgba(255, 255, 255, .2)',
+  },
+  shareParentDiv: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    margin: 'auto',
+    color: 'white',
   },
 });
 
@@ -216,16 +256,36 @@ class ImageDraw extends React.Component {
             </div>
           )}
           {!base64Meme && base64Meme === '' ? (
-            <CardContent>
-              <Typography component="p">
-                Click Save when your done editing the picture.
+            <CardContent className={classes.saveRow}>
+              <Typography component="p" className={classes.saveRowElement}>
+                Click Save when your done editing.
               </Typography>
+              <IconButton
+                variant="contained"
+                size="small"
+                className={classes.saveRowElement}
+                onClick={this.handleExportClick}
+              >
+                <SaveIcon />
+              </IconButton>
             </CardContent>
           ) : (
             <CardContent>
               <Typography component="p">
                 Click the picture to download it.
               </Typography>
+              <div>
+                <Typography component="p">
+                  Click Replay icon to start from scratch.
+                </Typography>
+                <IconButton
+                  variant="contained"
+                  size="small"
+                  onClick={this.handleReset}
+                >
+                  <ReplayIcon />
+                </IconButton>
+              </div>
             </CardContent>
           )}
           {!base64Meme && base64Meme === '' ? (
@@ -239,7 +299,7 @@ class ImageDraw extends React.Component {
             ''
           )}
           {!base64Meme && base64Meme === '' ? (
-            <CardActions>
+            <div className={classes.modifierRow}>
               <Input
                 className={classes.cardInput}
                 type="text"
@@ -256,60 +316,67 @@ class ImageDraw extends React.Component {
               >
                 <CloudUploadIcon className={classes.iconAvg} />
               </IconButton>
-            </CardActions>
+            </div>
           ) : (
             ''
           )}
-          {base64Meme ? (
-            <>
-              <CardActions className={classes.actions}>
-                <IconButton aria-label="Add to favorites">
-                  <FavoriteIcon />
-                </IconButton>
-                <IconButton aria-label="Share">
-                  <ShareIcon>
-                    <FacebookShareButton url="https://www.npmjs.com/package/react-social-sharing" />
-                  </ShareIcon>
-                </IconButton>
-                <IconButton
-                  variant="contained"
-                  size="small"
-                  onClick={this.handleReset}
-                >
-                  <ReplayIcon />
-                </IconButton>
-                <TextField
-                  id="latestUpload"
-                  label="Image URL"
-                  // defaultValue={latestUpload.url}
-                  value={latestUpload.url}
-                  className={classes.imageUrlToCopy}
-                  margin="normal"
-                  autoFocus
-                  InputProps={{
-                    readOnly: true,
-                    className: classes.imageUrlToCopy,
-                  }}
-                  variant="filled"
-                />
-                <IconButton
-                  variant="contained"
-                  color="default"
-                  size="small"
-                  onClick={this.handleCopyToClipboard}
-                >
-                  <FileCopySharp />
-                </IconButton>
-              </CardActions>
-            </>
-          ) : (
+          {base64Meme && (
             <CardActions className={classes.actions}>
+              <div className={classes.shareParentDiv}>
+                <RedditShareButton
+                  className={classes.somePadding}
+                  url={latestUpload.url}
+                >
+                  <RedditIcon size={28} />
+                </RedditShareButton>
+                <RedditShareCount url={latestUpload.url}>
+                  {count => (count === 0 ? '' : count)}
+                </RedditShareCount>
+                <FacebookShareButton
+                  className={classes.somePadding}
+                  url={latestUpload.url}
+                >
+                  <FacebookIcon size={28} />
+                </FacebookShareButton>
+
+                <FacebookShareCount url={latestUpload.url}>
+                  {count => (count === 0 ? '' : count)}
+                </FacebookShareCount>
+                <TwitterShareButton
+                  className={classes.somePadding}
+                  url={latestUpload.url}
+                >
+                  <TwitterIcon size={28} />
+                </TwitterShareButton>
+
+                <TelegramShareButton
+                  className={classes.somePadding}
+                  url={latestUpload.url}
+                >
+                  <TelegramIcon size={28} />
+                </TelegramShareButton>
+              </div>
+
+              <TextField
+                id="latestUpload"
+                label="Image URL"
+                value={latestUpload.url}
+                className={classes.imageUrlToCopy}
+                margin="normal"
+                autoFocus
+                InputProps={{
+                  readOnly: true,
+                  className: classes.imageUrlToCopy,
+                }}
+                variant="filled"
+              />
               <IconButton
                 variant="contained"
+                color="default"
                 size="small"
-                onClick={this.handleExportClick}
+                onClick={this.handleCopyToClipboard}
               >
-                <SaveIcon />
+                <FileCopySharp />
               </IconButton>
             </CardActions>
           )}

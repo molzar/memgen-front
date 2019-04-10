@@ -17,6 +17,7 @@ import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import HomePage from 'containers/HomePage/Loadable';
 import ImageDraw from 'containers/ImageDraw/Loadable';
+import PostPage from 'containers/PostPage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
 import saga from './saga';
@@ -29,9 +30,10 @@ import { setUserProfile, checkDBUser } from './actions';
 
 const AppWrapper = styled.div`
   display: flex;
-  min-height: 100%;
+  min-height: 100vh;
   flex-direction: column;
   position: relative;
+  background-color: #0c1024;
 `;
 
 class App extends Component {
@@ -54,7 +56,7 @@ class App extends Component {
   render() {
     const { auth, profile } = this.state;
     return (
-      <AuthContext.Provider value={auth}>
+      <AuthContext.Provider auth={auth}>
         <AppWrapper>
           <Helmet
             titleTemplate="%s - Make your own Meme with our Generator"
@@ -81,7 +83,21 @@ class App extends Component {
               path="/imageDraw"
               render={props => <ImageDraw {...props} />}
             />
-            <Route path="/myMemes" render={props => <HomePage {...props} />} />
+            <Route
+              path="/myMemes"
+              auth={auth}
+              render={props => <HomePage auth={auth} {...props} />}
+            />
+            <Route
+              path="/:idUser/post/:idPost/"
+              auth={auth}
+              render={props => <PostPage auth={auth} {...props} />}
+            />
+            <Route
+              path="/post/:idPost/"
+              auth={auth}
+              render={props => <PostPage auth={auth} {...props} />}
+            />
             <Route path="" component={NotFoundPage} />
           </Switch>
 
