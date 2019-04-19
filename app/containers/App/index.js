@@ -10,7 +10,7 @@ import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, withRouter } from 'react-router-dom';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import { connect } from 'react-redux';
@@ -20,6 +20,7 @@ import ImageDraw from 'containers/ImageDraw/Loadable';
 import PostPage from 'containers/PostPage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import saga from './saga';
 import GlobalStyle from '../../global-styles';
 import AuthContext from '../../src/AuthContext';
@@ -27,14 +28,28 @@ import Auth from '../../Auth/Auth';
 import Callback from '../../src/Callback';
 import { selectUserProfile } from './selectors';
 import { setUserProfile, checkDBUser } from './actions';
+import { LanguageProvider } from '../LanguageProvider';
+import { makeSelectLocale } from '../LanguageProvider/selectors';
+import { changeLocale } from '../LanguageProvider/actions';
 
 const AppWrapper = styled.div`
   display: flex;
   min-height: 100vh;
   flex-direction: column;
   position: relative;
-  background-color: #0c1024;
+  background-color: rgb(251, 251, 251);
 `;
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#fafafa', contrastText: '#263238' },
+    primary2: { main: '#00a9ff', contrastText: '#263238' },
+    secondary: { main: '#ff0c3e' },
+  },
+  typography: {
+    useNextVariants: true,
+  },
+});
 
 class App extends Component {
   state = {
@@ -55,54 +70,53 @@ class App extends Component {
 
   render() {
     const { auth, profile } = this.state;
+
     return (
       <AuthContext.Provider auth={auth}>
-        <AppWrapper>
-          <Helmet
-            titleTemplate="%s - Make your own Meme with our Generator"
-            defaultTitle="Make your own Meme with our Generator"
-          >
-            <meta
-              name="description"
-              content="Make your own Meme with our Generator"
-            />
-          </Helmet>
-          <Header
-            userProfile={this.props.userProfile}
-            auth={auth}
-            profile={profile}
-          />
-          <Switch>
-            <Route exact path="/" render={props => <HomePage {...props} />} />
-            <Route
-              path="/callback"
-              auth={auth}
-              render={props => <Callback auth={auth} {...props} />}
-            />
-            <Route
-              path="/imageDraw"
-              render={props => <ImageDraw {...props} />}
-            />
-            <Route
-              path="/myMemes"
-              auth={auth}
-              render={props => <HomePage auth={auth} {...props} />}
-            />
-            <Route
-              path="/:idUser/post/:idPost/"
-              auth={auth}
-              render={props => <PostPage auth={auth} {...props} />}
-            />
-            <Route
-              path="/post/:idPost/"
-              auth={auth}
-              render={props => <PostPage auth={auth} {...props} />}
-            />
-            <Route path="" component={NotFoundPage} />
-          </Switch>
+        <MuiThemeProvider theme={theme}>
+          <AppWrapper>
+            <Helmet
+              titleTemplate="%s - Make your own Meme with our Generator"
+              defaultTitle="Make your own Meme with our Generator"
+            >
+              <meta
+                name="description"
+                content="Make your own Meme with our Generator"
+              />
+            </Helmet>
+            <Header auth={auth} profile={profile} {...this.props} />
+            <Switch>
+              <Route exact path="/" render={props => <HomePage {...props} />} />
+              <Route
+                path="/callback"
+                auth={auth}
+                render={props => <Callback auth={auth} {...props} />}
+              />
+              <Route
+                path="/imageDraw"
+                render={props => <ImageDraw {...props} />}
+              />
+              <Route
+                path="/myMemes"
+                auth={auth}
+                render={props => <HomePage auth={auth} {...props} />}
+              />
+              <Route
+                path="/:idUser/post/:idPost/:withComments"
+                auth={auth}
+                render={props => <PostPage auth={auth} {...props} />}
+              />
+              <Route
+                path="/post/:idPost/:withComments"
+                auth={auth}
+                render={props => <PostPage auth={auth} {...props} />}
+              />
+              <Route path="" component={NotFoundPage} />
+            </Switch>
 
-          <GlobalStyle />
-        </AppWrapper>
+            <GlobalStyle />
+          </AppWrapper>
+        </MuiThemeProvider>
       </AuthContext.Provider>
     );
   }
@@ -113,11 +127,13 @@ App.propTypes = {
 
 const mapStateToProps = createStructuredSelector({
   userProfile: selectUserProfile(),
+  locale: makeSelectLocale(),
 });
 
 const mapDispatchToProps = dispatch => ({
   localSetUserProfile: profile => dispatch(setUserProfile(profile)),
   checkDBUser: profile => dispatch(checkDBUser(profile)),
+  onLocaleToggle: evt => dispatch(changeLocale(evt.target.value)),
 });
 
 const withConnect = connect(
@@ -130,4 +146,5 @@ const withSaga = injectSaga({ key: 'app', saga });
 export default compose(
   withSaga,
   withConnect,
+  withRouter,
 )(App);

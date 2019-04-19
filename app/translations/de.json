@@ -27,5 +27,33 @@
   "boilerplate.containers.HomePage.tryme.message": "Zeige die Github Repositories von",
   "boilerplate.containers.LocaleToggle.de": "",
   "boilerplate.containers.LocaleToggle.en": "",
-  "boilerplate.containers.NotFoundPage.header": "Seite nicht gefunden."
+  "boilerplate.containers.NotFoundPage.header": "Seite nicht gefunden.",
+
+  "boilerplate.components.Header.logIn": "Einloggen",
+  "boilerplate.components.Header.logOut": "Ausloggen",
+  "boilerplate.components.Header.allMemes": "Alle MeMeS",
+  "boilerplate.components.Header.myMemes": "Meine MeMeS",
+  "boilerplate.components.Header.makeMeme": "Machen MeMe",
+
+  "boilerplate.containers.TopPage.createdBy": "Erstellt von",
+
+  "boilerplate.containers.HomePage.next": "Nächster",
+  "boilerplate.containers.HomePage.previous": "Bisherige",
+  "boilerplate.containers.HomePage.deleteMeme": "Löschen MeMe",
+
+  "boilerplate.containers.PostPage.addCommentPlaceholder": "Schreibe deinen kommentar...",
+  "boilerplate.containers.PostPage.addReplyPlaceholder": "Eine antwort hinzufügen...",
+  "boilerplate.containers.PostPage.next": "Nächster",
+  "boilerplate.containers.PostPage.previous": "Bisherige",
+
+  "boilerplate.containers.ImageDraw.titleMakeYourOwnMeme": "Machen Sie Ihr eigenes MeMe",
+  "boilerplate.containers.ImageDraw.clickSave": "Klicken Sie auf das Symbol Speichern, wenn Sie zufrieden sind",
+  "boilerplate.containers.ImageDraw.placeholderFirstText": "Ändern Sie mich jetzt",
+  "boilerplate.containers.ImageDraw.placeholderSecondText": "Zieh mich später",
+  "boilerplate.containers.ImageDraw.placeholderUploadImage": "Bild von URL hochladen ...",
+  "boilerplate.containers.ImageDraw.placeholderUploadImageLocal": "Bild auswählen",
+  "boilerplate.containers.ImageDraw.or": "oder",
+  "boilerplate.containers.ImageDraw.downloadPictureText": "Klicken Sie auf das Bild, um es herunterzuladen.",
+  "boilerplate.containers.ImageDraw.replayText": "Klicken Sie auf das Wiedergabesymbol, um von vorne zu beginnen.",
+  "boilerplate.containers.ImageDraw.labelImageUrl": "Bild URL"
 }

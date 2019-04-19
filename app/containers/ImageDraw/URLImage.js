@@ -35,18 +35,26 @@ class URLImage extends React.Component {
     this.image = new window.Image();
     this.image.crossOrigin = this.props.image.crossOrigin;
     this.image.addEventListener('load', this.handleLoad);
+    const maxWidth =
+      window.document.body.offsetWidth - 16 > 540
+        ? 540
+        : window.document.body.offsetWidth - 16;
     this.image.src = this.props.image.src;
+    const x = `api/proxy/${encodeURIComponent(
+      this.props.image.src,
+    )}?width=${maxWidth}`;
+    this.image.src =
+      this.props.image.whereFrom === 'fromFile' ? this.props.image.src : x;
   }
 
   handleLoad = () => {
-    this.image.width =
+    let newWidth =
       this.image.width > window.document.body.offsetWidth
         ? window.document.body.offsetWidth - 16
         : this.image.width;
-    this.image.height =
-      this.image.height > window.document.body.offsetHeight
-        ? window.document.body.offsetHeight - 16
-        : this.image.height;
+    newWidth = newWidth > 540 ? 540 : newWidth;
+    this.image.height = this.image.height * (1 / (this.image.width / newWidth));
+    this.image.width = newWidth;
     this.handleLoadedImage(this.image);
     this.setState({
       image: this.image,

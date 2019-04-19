@@ -19,7 +19,6 @@ function Toggle(props) {
       <ToggleOption key={value} value={value} message={props.messages[value]} />
     ));
   }
-
   return (
     <Select value={props.value} onChange={props.onToggle}>
       {content}

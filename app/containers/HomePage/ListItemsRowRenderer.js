@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import IconButton from '@material-ui/core/IconButton';
 import InputLabel from '@material-ui/core/InputLabel';
-import ThumbUp from '@material-ui/icons/ThumbUp';
-import ThumbDown from '@material-ui/icons/ThumbDown';
-import Comment from '@material-ui/icons/Comment';
+import ArrowUpwardSharp from '@material-ui/icons/ArrowUpwardSharp';
+import ArrowDownwardSharp from '@material-ui/icons/ArrowDownwardSharp';
+import CommentSharp from '@material-ui/icons/CommentSharp';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
@@ -22,75 +22,78 @@ import {
   RedditShareCount,
 } from 'react-share';
 import { makeSelecDBUser } from 'containers/App/selectors';
-import { withStyles } from '@material-ui/core/styles';
-import Config from '../../../server/conf/config';
-import { likeDislike } from './actions';
+import { withStyles, withTheme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Slide from '@material-ui/core/Slide';
+import { FormattedMessage } from 'react-intl';
+import messages from './messages';
+import { likeDislike, removePost, reportMemesSlide } from './actions';
+import TopPost from '../../components/TopPost';
 
-const styles = () => ({
-  imageDialog: {
-    padding: '5px 5px 5px 5px !important',
-  },
-  noPadding: {
-    padding: '5px 5px 5px 5px !important',
-  },
-  root: {
-    marginLeft: 'auto !important',
-  },
+const styles = theme => ({
   bottomHandler: {
     display: 'flex',
     flexDirection: 'row',
-    backgroundColor: '#3f51b5',
-    // borderBottomLeftRadius: '10px',
-    // borderBottomRightRadius: '10px',
+    // backgroundColor: '#3f51b5',
+    backgroundColor: theme.palette.primary.light,
   },
   commentsHandler: {
     float: 'right',
   },
-  containerImage: {
-    // paddingTop: '20px',
-  },
   itemRow: {
     flexDirection: 'column',
     alignItems: 'center',
-    // padding: '0 5px',
     display: 'inline-block',
-
-    // marginBottom: '20px',
-    // marginTop: '30px',
   },
   imgClass: {
     width: '100%',
   },
   emptyDiv: {
     opacity: '0',
-    height: '30px',
+    height: '50px',
   },
   dislikeIcon: {
-    color: '#b53f51',
+    // color: '#b53f51',
+    color: theme.palette.secondary.main,
+  },
+  shadowIcons: {
+    margin: '5px',
+    boxShadow: theme.shadows[3],
   },
   likeIcon: {
-    color: '#51b53f',
+    // color: '#51b53f',
+    color: theme.palette.primary2.main,
   },
   whiteColor: {
     color: 'white !important',
+  },
+  textColor: {
+    color: theme.palette.primary.contrastText,
   },
   shareParentDiv: {
     display: 'inline-flex',
     alignItems: 'center',
     margin: 'auto',
-    color: 'white',
+    color: theme.palette.background.paper,
+    // color: 'white',
   },
-  somePadding: {
-    // border: '2px solid white',
-    margin: '5px',
-    boxShadow: '0.1px 0.1px 0.1px 2px rgba(255, 255, 255, .2)',
+  buttonNo: {
+    backgroundColor: theme.palette.primary2.main,
   },
 });
+
+function Transition(props) {
+  return <Slide direction="up" {...props} />;
+}
 
 class ListItemsRowRenderer extends React.Component {
   state = {
     open: false,
     openComments: false,
+    openDialogDelete: false,
   };
 
   handleClickOpen = () => {
@@ -118,6 +121,20 @@ class ListItemsRowRenderer extends React.Component {
     this.setState({ openComments: false });
   };
 
+  handleClickOpenDialogDelete = () => {
+    this.setState({ openDialogDelete: true });
+  };
+
+  handleCloseDialogDelete = () => {
+    this.setState({ openDialogDelete: false });
+  };
+
+  handlePostDelete = () => {
+    this.setState({ openDialogDelete: false });
+    const { meme } = this.props;
+    this.props.removePost(-1, meme.id, meme.delete_hash);
+  };
+
   handleLikeDislike = likeDislikeObj => () => {
     const { meme, dbUser } = this.props;
     if (meme.id && dbUser.id) {
@@ -129,8 +146,12 @@ class ListItemsRowRenderer extends React.Component {
     }
   };
 
+  reportMemesSlide = idPost => {
+    this.props.reportMemesSlide(idPost);
+  };
+
   render() {
-    const { meme, style, classes, measure, idUserPage } = this.props;
+    const { meme, style, classes, measure, dbUser, idUserPage } = this.props;
 
     return (
       <div
@@ -140,11 +161,11 @@ class ListItemsRowRenderer extends React.Component {
         className={classes.itemRow}
         onLoad={measure}
       >
-        <div className={classes.emptyDiv} />
+        <TopPost meme={meme} reportMemesSlide={this.reportMemesSlide} />
         <Link
           style={{ textDecoration: 'none' }}
           params={{ id: meme.id }}
-          to={`${idUserPage ? `/${idUserPage}` : ''}/post/${meme.id}`}
+          to={`${idUserPage ? `/${idUserPage}` : ''}/post/${meme.id}/false`}
         >
           <div
             id={`container-img-${meme.id}`}
@@ -153,32 +174,41 @@ class ListItemsRowRenderer extends React.Component {
             onClick={this.handleClickOpen}
             onKeyPress={() => {}}
             role="button"
-            className={classes.containerImage}
           >
             <img
-              src={`/api/proxy/${encodeURIComponent(meme.url)}`}
-              alt={`/api/proxy/${encodeURIComponent(meme.url)}`}
+              src={`/api/proxy/${encodeURIComponent(meme.url)}?width=${
+                window.document.body.offsetWidth > 540
+                  ? 540
+                  : window.document.body.offsetWidth
+              }`}
+              alt=":)"
               key={`list-img-${meme.id}`}
               // onLoad={measure}
               className={classes.imgClass}
             />
           </div>
         </Link>
-        <div className={classes.bottomHandler}>
+        <div
+          className={classes.bottomHandler}
+          key={`bottom-handler-utils-${meme.id}`}
+        >
           <div>
             <IconButton
               className={classes.likeIcon}
               aria-label="Like"
               onClick={this.handleLikeDislike(1)}
             >
-              <ThumbUp color="inherit" />
+              <ArrowUpwardSharp
+                color="inherit"
+                className={classes.shadowIcons}
+              />
             </IconButton>
             <InputLabel
               disabled
               readOnly
               id="filled-likes"
               shrink
-              className={classes.whiteColor}
+              className={classes.textColor}
             >
               {parseInt(meme.likes, 10).toLocaleString()}
             </InputLabel>
@@ -188,59 +218,118 @@ class ListItemsRowRenderer extends React.Component {
               aria-label="dislike"
               onClick={this.handleLikeDislike(0)}
             >
-              <ThumbDown color="inherit" />
+              <ArrowDownwardSharp
+                color="inherit"
+                className={classes.shadowIcons}
+              />
             </IconButton>
             <InputLabel
               disabled
               readOnly
               id="filled-dislikes"
               shrink
-              className={classes.whiteColor}
+              className={classes.textColor}
             >
               {parseInt(meme.dislikes, 10).toLocaleString()}
             </InputLabel>
           </div>
           <div className={classes.shareParentDiv}>
-            <RedditShareButton className={classes.somePadding} url={meme.url}>
-              <RedditIcon size={32} />
+            <RedditShareButton className={classes.shadowIcons} url={meme.url}>
+              <RedditIcon size={28} />
             </RedditShareButton>
             <RedditShareCount url={meme.url}>
               {count => (count === 0 ? '' : count)}
             </RedditShareCount>
-            <FacebookShareButton className={classes.somePadding} url={meme.url}>
-              <FacebookIcon size={32} />
+            <FacebookShareButton className={classes.shadowIcons} url={meme.url}>
+              <FacebookIcon size={28} />
             </FacebookShareButton>
 
             <FacebookShareCount url={meme.url}>
               {count => (count === 0 ? '' : count)}
             </FacebookShareCount>
-            <TwitterShareButton className={classes.somePadding} url={meme.url}>
-              <TwitterIcon size={32} />
+            <TwitterShareButton className={classes.shadowIcons} url={meme.url}>
+              <TwitterIcon size={28} />
             </TwitterShareButton>
 
-            <TelegramShareButton className={classes.somePadding} url={meme.url}>
-              <TelegramIcon size={32} />
+            <TelegramShareButton className={classes.shadowIcons} url={meme.url}>
+              <TelegramIcon size={28} />
             </TelegramShareButton>
           </div>
-          <div className={classes.commentsHandler}>
-            <InputLabel
-              disabled
-              readOnly
-              id="filled-dislikes"
-              shrink
-              className={classes.whiteColor}
-            >
-              {parseInt(meme.nbrComments, 10).toLocaleString()}
-            </InputLabel>
-            <IconButton
-              className={classes.whiteColor}
-              aria-label="OpenComments"
-              onClick={this.handleClickOpenCommentsAndDialog}
-            >
-              <Comment color="inherit" />
-            </IconButton>
-          </div>
+          <Link
+            style={{ textDecoration: 'none' }}
+            to={`${idUserPage ? `/${idUserPage}` : ''}/post/${meme.id}/true`}
+          >
+            <div className={classes.commentsHandler}>
+              <InputLabel
+                disabled
+                readOnly
+                id="filled-dislikes"
+                shrink
+                className={classes.textColor}
+              >
+                {parseInt(meme.nbrComments, 10).toLocaleString()}
+              </InputLabel>
+              <IconButton
+                className={classes.textColor}
+                aria-label="OpenComments"
+                onClick={this.handleClickOpenCommentsAndDialog}
+              >
+                <CommentSharp color="inherit" className={classes.shadowIcons} />
+              </IconButton>
+            </div>
+          </Link>
         </div>
+        {meme.id_user &&
+          dbUser.id &&
+          dbUser.id === meme.id_user && (
+          <div
+            className={classes.bottomHandler}
+            key={`bottom-handler-detele-${meme.id}`}
+          >
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              style={{ borderRadius: '0px' }}
+              onClick={this.handleClickOpenDialogDelete}
+            >
+              <FormattedMessage {...messages.deleteMeme} />
+            </Button>
+            <Dialog
+              open={this.state.openDialogDelete}
+              onClose={this.handleCloseDialogDelete}
+              aria-labelledby="alert-dialog-slide-title"
+              TransitionComponent={Transition}
+              style={{ borderRadius: '0px' }}
+              PaperProps={{ style: { borderRadius: '0px' } }}
+            >
+              <DialogTitle id="alert-dialog-slide-title">
+                  Really ?
+              </DialogTitle>
+              <DialogActions>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  size="small"
+                  onClick={this.handlePostDelete}
+                  style={{ borderRadius: '0px' }}
+                >
+                    Yes
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={this.handleCloseDialogDelete}
+                  className={classes.buttonNo}
+                  style={{ borderRadius: '0px' }}
+                >
+                    No
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
+        )}
+        <div className={classes.emptyDiv} />
       </div>
     );
   }
@@ -251,6 +340,8 @@ ListItemsRowRenderer.propTypes = {
   style: PropTypes.object,
   dbUser: PropTypes.object,
   likeDislike: PropTypes.func,
+  removePost: PropTypes.func,
+  reportMemesSlide: PropTypes.func,
   classes: PropTypes.object.isRequired,
   measure: PropTypes.func,
   idUserPage: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -258,6 +349,9 @@ ListItemsRowRenderer.propTypes = {
 const mapDispatchToProps = dispatch => ({
   likeDislike: likeDislikeObjToSend =>
     dispatch(likeDislike(likeDislikeObjToSend)),
+  removePost: (indexPost, idPost, deletehash) =>
+    dispatch(removePost(indexPost, idPost, deletehash)),
+  reportMemesSlide: idPost => dispatch(reportMemesSlide(idPost)),
 });
 
 const mapStateToProps = createStructuredSelector({
@@ -271,5 +365,6 @@ const withConnect = connect(
 
 export default compose(
   withConnect,
+  withTheme(),
   withStyles(styles),
 )(ListItemsRowRenderer);

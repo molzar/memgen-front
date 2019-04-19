@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import AppBar from '@material-ui/core/AppBar';
@@ -24,8 +25,10 @@ import HomeSharp from '@material-ui/icons/HomeSharp';
 import AddAPhotoSharp from '@material-ui/icons/AddAPhotoSharp';
 import PhotoLibrarySharp from '@material-ui/icons/PhotoLibrarySharp';
 import { Link } from 'react-router-dom';
-// import MailIcon from '@material-ui/icons/Mail';
+import { FormattedMessage } from 'react-intl';
 
+import messages from './messages';
+import { LocaleToggle } from '../../containers/LocaleToggle';
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -115,13 +118,12 @@ class Header extends React.Component {
   render() {
     const { classes, userProfile, theme } = this.props;
     const { isAuthenticated, login, logout } = this.props.auth;
-
     return (
       <>
         <div className={classes.root}>
           <CssBaseline />
           <AppBar position="fixed" className={classes.appBar}>
-            <Toolbar disableGutters={!this.state.open}>
+            <Toolbar disableGutters>
               <IconButton
                 color="inherit"
                 aria-label="Open drawer"
@@ -136,12 +138,18 @@ class Header extends React.Component {
               <Typography variant="h6" color="inherit" className={classes.grow}>
                 MeMGeN
               </Typography>
+              <LocaleToggle
+                locale={this.props.locale}
+                onLocaleToggle={this.props.onLocaleToggle}
+              />
               {isAuthenticated() ? (
                 <IconButton color="inherit">
                   {userProfile && userProfile.picture ? (
                     <Avatar
-                      alt="iiii"
-                      src={userProfile.picture}
+                      alt=":)"
+                      src={`/api/proxy/${encodeURIComponent( // {}
+                          userProfile.picture,
+                        )}?width=40`}
                       className={classes.avatar}
                     />
                   ) : (
@@ -158,7 +166,11 @@ class Header extends React.Component {
                 style={{ width: 100 }}
                 onClick={isAuthenticated() ? logout : login}
               >
-                {isAuthenticated() ? 'Log Out' : 'Log In'}
+                {isAuthenticated() ? (
+                  <FormattedMessage {...messages.logOut} />
+                ) : (
+                  <FormattedMessage {...messages.logIn} />
+                )}
               </Button>
             </Toolbar>
           </AppBar>
@@ -168,6 +180,7 @@ class Header extends React.Component {
           className={classes.drawer}
           onClose={this.toggleDrawer(false)}
           onOpen={this.toggleDrawer(true)}
+          style={{ height: '100vh' }}
         >
           <div className={classes.drawerHeader}>
             <IconButton onClick={this.handleDrawerClose}>
@@ -185,7 +198,9 @@ class Header extends React.Component {
                 <ListItemIcon>
                   <HomeSharp />
                 </ListItemIcon>
-                <ListItemText primary="All MeMes" />
+                <ListItemText
+                  primary={<FormattedMessage {...messages.allMemes} />}
+                />
               </ListItem>
             </Link>
             {isAuthenticated() ? (
@@ -195,7 +210,9 @@ class Header extends React.Component {
                     <ListItemIcon>
                       <AddAPhotoSharp />
                     </ListItemIcon>
-                    <ListItemText primary="Make MeMe" />
+                    <ListItemText
+                      primary={<FormattedMessage {...messages.makeMeme} />}
+                    />
                   </ListItem>
                 </Link>
 
@@ -204,7 +221,9 @@ class Header extends React.Component {
                     <ListItemIcon>
                       <PhotoLibrarySharp />
                     </ListItemIcon>
-                    <ListItemText primary="My MeMes" />
+                    <ListItemText
+                      primary={<FormattedMessage {...messages.myMemes} />}
+                    />
                   </ListItem>
                 </Link>
               </>
@@ -225,4 +244,7 @@ Header.propTypes = {
   theme: PropTypes.object,
 };
 
-export default withStyles(styles, { withTheme: true })(Header);
+export default compose(
+  // injectIntl,
+  withStyles(styles, { withTheme: true }),
+)(Header);

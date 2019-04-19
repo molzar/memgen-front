@@ -1,6 +1,6 @@
 import React from 'react';
 import { compose } from 'redux';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import { SketchPicker } from 'react-color';
 import { fromJS } from 'immutable';
@@ -10,16 +10,18 @@ import PropTypes from 'prop-types';
 import { loadTextAttrs } from './actions';
 import { makeSelectTextAttrs } from './selectors';
 
-const styles = () => ({
+const styles = theme => ({
   color: {
     height: '20px',
     borderRadius: '2px',
   },
   swatch: {
     padding: '5px',
-    background: '#fff',
+    background: theme.palette.background.paper,
+    // background: '#fff',
     borderRadius: '1px',
-    boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
+    // boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
+    boxShadow: theme.shadows[2],
     display: 'inline-block',
     cursor: 'pointer',
   },
@@ -123,6 +125,7 @@ const withConnect = connect(
 );
 
 export default compose(
+  withTheme(),
   withStyles(styles),
   withConnect,
 )(ColorPicker);

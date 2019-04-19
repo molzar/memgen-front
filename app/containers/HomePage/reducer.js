@@ -15,6 +15,8 @@ import {
   CHANGE_USERNAME,
   LOAD_MEMES_SUCCESS,
   UPDATE_MEME_AFTER_LIKE,
+  REMOVE_POST_SUCCESS,
+  REPORT_MEME_SLIDE_SUCCESS,
 } from './constants';
 
 // The initial state of the App
@@ -35,6 +37,18 @@ function homeReducer(state = initialState, action) {
       const oldMemes = state.get('memes').toJS();
       oldMemes[oldMemes.findIndex(meme => meme.id === action.newMeme.id)] =
         action.newMeme;
+      return state.set('memes', fromJS(oldMemes));
+    }
+    case REMOVE_POST_SUCCESS: {
+      let oldMemes = state.get('memes').toJS();
+      oldMemes = oldMemes.filter(el => el.id !== action.idPost);
+      return state.set('memes', fromJS(oldMemes));
+    }
+    case REPORT_MEME_SLIDE_SUCCESS: {
+      const oldMemes = state.get('memes').toJS();
+      oldMemes[
+        oldMemes.findIndex(meme => meme.id === action.post)
+      ].reported += 1;
       return state.set('memes', fromJS(oldMemes));
     }
     default:

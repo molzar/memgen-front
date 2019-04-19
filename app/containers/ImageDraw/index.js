@@ -13,16 +13,16 @@ import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-import red from '@material-ui/core/colors/red';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import ShareIcon from '@material-ui/icons/Share';
 import SaveIcon from '@material-ui/icons/Save';
 import ReplayIcon from '@material-ui/icons/Replay';
 import { compose } from 'redux';
+import ImageUploader from 'react-images-upload';
 import { connect } from 'react-redux';
+// import SwipeableViews from 'react-swipeable-views';
 import { createStructuredSelector } from 'reselect';
 import injectReducer from 'utils/injectReducer';
 import { Stage, Layer } from 'react-konva';
+import { FormattedMessage } from 'react-intl';
 import {
   FacebookShareButton,
   FacebookIcon,
@@ -35,6 +35,8 @@ import {
   FacebookShareCount,
   RedditShareCount,
 } from 'react-share';
+// import { virtualize } from 'react-swipeable-views-utils';
+import messages from './messages';
 import saga from './saga';
 import reducer, {
   image as initialImage,
@@ -63,21 +65,12 @@ import MyTextModifier from './MyTextModifier';
 import URLImage from './URLImage';
 import MyText from './MyText';
 
+// const VirtualizeSwipeableViews = virtualize(SwipeableViews);
+
 const styles = theme => ({
-  button: {
-    margin: theme.spacing.unit,
-  },
-  leftIcon: {
-    marginRight: theme.spacing.unit,
-  },
-  rightIcon: {
-    marginLeft: theme.spacing.unit,
-  },
-  iconSmall: {
-    fontSize: 20,
-  },
   iconAvg: {
-    fontSize: 28,
+    fontSize: 36,
+    padding: '5px',
   },
   cardInput: {
     width: '100%',
@@ -86,10 +79,10 @@ const styles = theme => ({
     textAlign: 'center',
     margin: 'auto',
     paddingBottom: '10px',
-  },
-  media: {
-    height: 0,
-    paddingTop: '56.25%', // 16:9
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    borderRadious: '0px !important',
+    boxShadow: theme.shadows[3],
   },
   actions: {
     display: 'flex',
@@ -113,31 +106,11 @@ const styles = theme => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
-  expandOpen: {
-    transform: 'rotate(180deg)',
-  },
-  avatar: {
-    backgroundColor: red[500],
-  },
-  formControl: {
-    margin: theme.spacing.unit,
-    minWidth: 90,
-    height: 35,
-  },
-  containerGrid: {
-    justify: 'center',
-    alignItems: 'center',
-    alignContents: 'center',
-    direction: 'column',
-  },
-  root: {
-    flexGrow: 1,
-    alignSelf: 'center',
-  },
   imageUrlToCopy: {
     marginTop: '0px',
     marginBottom: '0px',
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
   },
   saveRow: {
     display: 'flex',
@@ -146,6 +119,12 @@ const styles = theme => ({
   },
   saveRowElement: {
     margin: 'auto',
+    padding: '5px',
+  },
+  saveIconElement: {
+    margin: 'auto',
+    fontSize: 36,
+    padding: '5px',
   },
   modifierRow: {
     display: 'flex',
@@ -153,15 +132,29 @@ const styles = theme => ({
     paddingLeft: '10px',
     paddingRight: '10px',
   },
-  somePadding: {
+  shadowIcons: {
     margin: '5px',
-    boxShadow: '0.1px 0.1px 0.1px 2px rgba(255, 255, 255, .2)',
+    boxShadow: theme.shadows[3],
   },
   shareParentDiv: {
     display: 'inline-flex',
     alignItems: 'center',
     margin: 'auto',
-    color: 'white',
+    color: theme.palette.primary.main,
+    // color: 'white',
+  },
+  iconColor: {
+    color: theme.palette.primary2.main,
+    fontSize: 36,
+  },
+  rootUploadFile: {
+    backgroundColor: theme.palette.primary.main,
+    maxWidth: '30%',
+  },
+  buttonLoadFIle: {
+    backgroundColor: theme.palette.primary2.main,
+    color: theme.palette.primary2.contrastText,
+    borderRadious: '0px',
   },
 });
 
@@ -170,6 +163,7 @@ class ImageDraw extends React.Component {
     super(props);
     this.stage = React.createRef();
     this.layer = React.createRef();
+    // this.state = { pictures: [] };
   }
 
   componentDidMount() {
@@ -183,8 +177,6 @@ class ImageDraw extends React.Component {
   handleExportClick = () => {
     const localBase64 = this.stage.current.toDataURL({
       mimeType: 'image/png',
-      // width: this.stage.attrs.Width,
-      // height: this.stage.attrs.Height,
       quality: 1,
       pixelRadio: 2,
     });
@@ -197,7 +189,7 @@ class ImageDraw extends React.Component {
 
   handleLoadImageClick = () => {
     const { image, uploadInput } = this.props;
-    image.src = `/api/proxy/${encodeURIComponent(uploadInput.value)}`;
+    image.src = uploadInput.value;
     this.props.loadImageSuccess(fromJS(image));
   };
 
@@ -209,7 +201,7 @@ class ImageDraw extends React.Component {
 
   handleReset = () => {
     this.props.resetState();
-    this.props.loadImage(fromJS(initialImage));
+    this.props.loadImageSuccess(fromJS(initialImage));
     this.props.loadTextAttrs(fromJS(initialTextAttrs));
     this.props.insertPostDBSucces(fromJS({}));
   };
@@ -217,6 +209,28 @@ class ImageDraw extends React.Component {
   handleCopyToClipboard = () => {
     document.querySelector('#latestUpload').select();
     document.execCommand('copy');
+  };
+
+  getBase64 = file => {
+    if (file && file.length > 0 && file[file.length - 1]) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file[file.length - 1]);
+      reader.onload = result => {
+        this.props.resetState();
+        const localimageFromBase64 = {
+          src: result.target.result,
+          crossOrigin: 'Anonymous',
+          width: 236,
+          height: 213,
+          whereFrom: 'fromFile',
+        };
+
+        this.props.loadImageSuccess(fromJS(localimageFromBase64));
+      };
+      reader.onerror = error => {
+        console.log('Error: ', error);
+      };
+    }
   };
 
   render() {
@@ -227,14 +241,15 @@ class ImageDraw extends React.Component {
       uploadInput,
       latestUpload,
     } = this.props;
-
     return (
       <div className={classes.content}>
         <Card className={classes.card} style={{ width: loadedImage.width }}>
-          <CardHeader title="Make your own MeMe" />
+          <FormattedMessage {...messages.titleMakeYourOwnMeme}>
+            {placeholder => <CardHeader title={placeholder} />}
+          </FormattedMessage>
           {base64Meme && base64Meme !== '' ? (
             <a href={base64Meme} download>
-              <img src={base64Meme} alt="img" />
+              <img src={base64Meme} alt=":)" />
             </a>
           ) : (
             <div
@@ -258,25 +273,25 @@ class ImageDraw extends React.Component {
           {!base64Meme && base64Meme === '' ? (
             <CardContent className={classes.saveRow}>
               <Typography component="p" className={classes.saveRowElement}>
-                Click Save when your done editing.
+                <FormattedMessage {...messages.clickSave} />
               </Typography>
               <IconButton
                 variant="contained"
                 size="small"
-                className={classes.saveRowElement}
+                className={classes.saveIconElement}
                 onClick={this.handleExportClick}
               >
-                <SaveIcon />
+                <SaveIcon className={classes.iconColor} />
               </IconButton>
             </CardContent>
           ) : (
             <CardContent>
               <Typography component="p">
-                Click the picture to download it.
+                <FormattedMessage {...messages.downloadPictureText} />
               </Typography>
               <div>
                 <Typography component="p">
-                  Click Replay icon to start from scratch.
+                  <FormattedMessage {...messages.replayText} />
                 </Typography>
                 <IconButton
                   variant="contained"
@@ -300,13 +315,17 @@ class ImageDraw extends React.Component {
           )}
           {!base64Meme && base64Meme === '' ? (
             <div className={classes.modifierRow}>
-              <Input
-                className={classes.cardInput}
-                type="text"
-                value={uploadInput.value}
-                onChange={this.handleUploadInputChange}
-                placeholder={uploadInput.placeholder}
-              />
+              <FormattedMessage {...messages.placeholderUploadImage}>
+                {placeholder => (
+                  <Input
+                    className={classes.cardInput}
+                    type="text"
+                    value={uploadInput.value}
+                    onChange={this.handleUploadInputChange}
+                    placeholder={placeholder}
+                  />
+                )}
+              </FormattedMessage>
               <IconButton
                 className={classes.iconAvg}
                 variant="contained"
@@ -314,17 +333,51 @@ class ImageDraw extends React.Component {
                 size="small"
                 onClick={this.handleLoadImageClick}
               >
-                <CloudUploadIcon className={classes.iconAvg} />
+                <CloudUploadIcon className={classes.iconColor} />
               </IconButton>
+              <Typography
+                component="p"
+                style={{ margin: 'auto', padding: '10px' }}
+              >
+                <FormattedMessage {...messages.or} />
+              </Typography>
+              <FormattedMessage {...messages.placeholderUploadImageLocal}>
+                {placeholder => (
+                  <ImageUploader
+                    buttonText={placeholder}
+                    onChange={this.getBase64}
+                    imgExtension={['.jpg', '.png', '.jpeg']}
+                    maxFileSize={5242880}
+                    singleImage
+                    className={classes.rootUploadFile}
+                    withLabel={false}
+                    withIcon={false}
+                    fileContainerStyle={{
+                      margin: '0px',
+                      padding: '0px',
+                      backgroundColor: '#fafafa',
+                      borderRadious: '0px',
+                      boxShadow: 'none',
+                    }}
+                    buttonClassName={classes.buttonLoadFIle}
+                    buttonStyles={{
+                      backgroundColor: '#00a9ff',
+                      borderRadius: '0px',
+                      color: '#263238',
+                    }}
+                  />
+                )}
+              </FormattedMessage>
             </div>
           ) : (
             ''
           )}
-          {base64Meme && (
+          {base64Meme &&
+            latestUpload.url && (
             <CardActions className={classes.actions}>
               <div className={classes.shareParentDiv}>
                 <RedditShareButton
-                  className={classes.somePadding}
+                  className={classes.shadowIcons}
                   url={latestUpload.url}
                 >
                   <RedditIcon size={28} />
@@ -333,7 +386,7 @@ class ImageDraw extends React.Component {
                   {count => (count === 0 ? '' : count)}
                 </RedditShareCount>
                 <FacebookShareButton
-                  className={classes.somePadding}
+                  className={classes.shadowIcons}
                   url={latestUpload.url}
                 >
                   <FacebookIcon size={28} />
@@ -343,33 +396,36 @@ class ImageDraw extends React.Component {
                   {count => (count === 0 ? '' : count)}
                 </FacebookShareCount>
                 <TwitterShareButton
-                  className={classes.somePadding}
+                  className={classes.shadowIcons}
                   url={latestUpload.url}
                 >
                   <TwitterIcon size={28} />
                 </TwitterShareButton>
 
                 <TelegramShareButton
-                  className={classes.somePadding}
+                  className={classes.shadowIcons}
                   url={latestUpload.url}
                 >
                   <TelegramIcon size={28} />
                 </TelegramShareButton>
               </div>
-
-              <TextField
-                id="latestUpload"
-                label="Image URL"
-                value={latestUpload.url}
-                className={classes.imageUrlToCopy}
-                margin="normal"
-                autoFocus
-                InputProps={{
-                  readOnly: true,
-                  className: classes.imageUrlToCopy,
-                }}
-                variant="filled"
-              />
+              <FormattedMessage {...messages.labelImageUrl}>
+                {placeholder => (
+                  <TextField
+                    id="latestUpload"
+                    label={placeholder}
+                    value={latestUpload.url}
+                    className={classes.imageUrlToCopy}
+                    margin="normal"
+                    autoFocus
+                    InputProps={{
+                      readOnly: true,
+                      className: classes.imageUrlToCopy,
+                    }}
+                    variant="filled"
+                  />
+                )}
+              </FormattedMessage>
               <IconButton
                 variant="contained"
                 color="default"
@@ -380,6 +436,17 @@ class ImageDraw extends React.Component {
               </IconButton>
             </CardActions>
           )}
+          {/* {!base64Meme &&
+            base64Meme === '' && (
+            <VirtualizeSwipeableViews
+              enableMouseEvents
+              overscanSlideBefore={1}
+              overscanSlideAfter={1}
+              onChangeIndex={this.onChangeIndex}
+              index={this.state.index}
+              slideRenderer={this.slideRenderer}
+            />
+          )} */}
         </Card>
       </div>
     );

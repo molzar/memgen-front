@@ -27,5 +27,33 @@
   "boilerplate.containers.HomePage.tryme.message": "Show Github repositories by",
   "boilerplate.containers.LocaleToggle.de": "de",
   "boilerplate.containers.LocaleToggle.en": "en",
-  "boilerplate.containers.NotFoundPage.header": "Page not found."
+  "boilerplate.containers.NotFoundPage.header": "Page not found.",
+
+  "boilerplate.components.Header.logIn": "Log In",
+  "boilerplate.components.Header.logOut": "Log Out",
+  "boilerplate.components.Header.allMemes": "All MeMeS",
+  "boilerplate.components.Header.myMemes": "My MeMeS",
+  "boilerplate.components.Header.makeMeme": "Make MeMe",
+
+  "boilerplate.containers.TopPage.createdBy": "Created By",
+
+  "boilerplate.containers.HomePage.next": "Next",
+  "boilerplate.containers.HomePage.previous": "Previous",
+  "boilerplate.containers.HomePage.deleteMeme": "Delete MeMe",
+
+  "boilerplate.containers.PostPage.addCommentPlaceholder": "Write your comment...",
+  "boilerplate.containers.PostPage.addReplyPlaceholder": "Add a reply...",
+  "boilerplate.containers.PostPage.next": "Next",
+  "boilerplate.containers.PostPage.previous": "Previous",
+
+  "boilerplate.containers.ImageDraw.titleMakeYourOwnMeme": "Make your own MeMe",
+  "boilerplate.containers.ImageDraw.clickSave": "Click Save icon when you're pleased",
+  "boilerplate.containers.ImageDraw.placeholderFirstText": "CHANGE ME NOW",
+  "boilerplate.containers.ImageDraw.placeholderSecondText": "DRAG ME LATER",
+  "boilerplate.containers.ImageDraw.placeholderUploadImage": "Upload image from url ...",
+  "boilerplate.containers.ImageDraw.placeholderUploadImageLocal": "Choose image",
+  "boilerplate.containers.ImageDraw.or": "or",
+  "boilerplate.containers.ImageDraw.downloadPictureText": "Click the picture to download it.",
+  "boilerplate.containers.ImageDraw.replayText": "Click Replay icon to start from scratch.",
+  "boilerplate.containers.ImageDraw.labelImageUrl": "Image URL"
 }

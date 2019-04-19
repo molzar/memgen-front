@@ -6,19 +6,19 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Image from 'material-ui-image';
+// import Image from 'material-ui-image';
 import IconButton from '@material-ui/core/IconButton';
 import InputLabel from '@material-ui/core/InputLabel';
-import ThumbUp from '@material-ui/icons/ThumbUp';
-import ThumbDown from '@material-ui/icons/ThumbDown';
-import Comment from '@material-ui/icons/Comment';
+import ArrowUpwardSharp from '@material-ui/icons/ArrowUpwardSharp';
+import ArrowDownwardSharp from '@material-ui/icons/ArrowDownwardSharp';
+import CommentSharp from '@material-ui/icons/CommentSharp';
 import sizeMe from 'react-sizeme';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import { makeSelecDBUser } from 'containers/App/selectors';
 import { CardContent, Card } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 import {
   FacebookShareButton,
   FacebookIcon,
@@ -31,75 +31,86 @@ import {
   FacebookShareCount,
   RedditShareCount,
 } from 'react-share';
-import Config from '../../../server/conf/config';
-
+import CircularProgress from '@material-ui/core/CircularProgress';
 import CommentsComponent from './CommentsComponent';
 import { makeSelecMemesSlide } from './selectors';
-import { likeDislike } from '../HomePage/actions';
-const styles = () => ({
+import { reportMemesSlide, likeDislike } from './actions';
+import TopPost from '../../components/TopPost';
+const styles = theme => ({
   imageDialog: {
     padding: '0px 0px 0px 0px !important',
     width: '540xp',
   },
   noPadding: {
     padding: '0px 0px 0px 0px !important',
+    height: 'auto',
+    transitionDuration: '0.3s',
   },
   root: {
     paddingTop: '85px !important',
   },
   somePadding: {
-    // border: '2px solid white',
     margin: '5px',
     boxShadow: '0.1px 0.1px 0.1px 2px rgba(255, 255, 255, .2)',
   },
   bottomHandler: {
-    backgroundColor: '#0c1024',
+    // backgroundColor: '#0c1024',
+    backgroundColor: theme.palette.primary.main,
+
     display: 'flex',
     flexDirection: 'row',
   },
   commentsHandler: {
-    // marginInlineStart: 'auto',
-    // margin: 'auto',
     float: 'right',
-  },
-  containerImage: {
-    // paddingTop: '20px',
   },
   cardRoot: {
     borderRadius: '0px !important',
-  },
-  itemRow: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    display: 'inline-block',
-  },
-  emptyDiv: {
-    opacity: '0',
-    height: '30px',
+    height: 'auto',
   },
   dislikeIcon: {
-    color: '#b53f51',
+    // color: '#b53f51',
+    color: theme.palette.secondary.main,
+  },
+  shadowIcons: {
+    margin: '5px',
+    boxShadow: theme.shadows[3],
   },
   likeIcon: {
-    color: '#51b53f',
+    color: theme.palette.primary2.main,
   },
   whiteColor: {
-    color: 'white !important',
+    color: theme.palette.primary.contrastText,
   },
   shareParentDiv: {
     display: 'inline-flex',
     alignItems: 'center',
     margin: 'auto',
-    color: 'white',
+    color: theme.palette.primary.main,
+    //
+  },
+  progress: {
+    margin: 'auto',
+    display: 'block',
+    marginTop: '30%',
+    marginBottom: '30%',
+    color: theme.palette.primary2.main,
+  },
+  containerLoading: {
+    width: 'auto',
   },
 });
 
 export class Post extends React.Component {
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
-      openComments: false,
+      openComments: props.openComments || false,
+      imageStatus: props.imgStatus || 'loading',
     };
+  }
+
+  componentDidMount() {
+    this.setState({ imageStatus: 'loading' });
   }
 
   handleClickOpenComments = () => {
@@ -123,8 +134,21 @@ export class Post extends React.Component {
     }
   };
 
+  reportMemesSlide = idPost => {
+    this.props.reportMemesSlide(idPost);
+  };
+
+  handleImageLoaded = () => {
+    this.setState({ imageStatus: 'loaded' });
+  };
+
+  handleImageErrored = () => {
+    this.setState({ imageStatus: 'failed to load' });
+  };
+
   render() {
     const { index, classes, memes, widthDiv } = this.props;
+
     return (
       <>
         {memes[index] && (
@@ -134,15 +158,42 @@ export class Post extends React.Component {
               key={`dialog-key-${memes[index].id}`}
               className={classes.cardRoot}
             >
+              {memes[index].id > 0 && (
+                <TopPost
+                  meme={memes[index]}
+                  reportMemesSlide={this.reportMemesSlide}
+                  backgroundColor={this.props.theme.palette.primary.main}
+                />
+              )}
               <CardContent
                 className={classes.noPadding}
                 key={`dialog-content-${memes[index].id}`}
               >
-                <Image
+                {this.state.imageStatus === 'loading' && (
+                  <div
+                    key={`container-loading-${memes[index].id}`}
+                    className={classes.containerLoading}
+                  >
+                    <CircularProgress
+                      key={`loading-${memes[index].id}`}
+                      className={classes.progress}
+                      size={100}
+                    />
+                  </div>
+                )}
+                <img
                   className={classes.imageDialog}
                   key={`dialog-content-text-${memes[index].id}`}
-                  src={`/api/proxy/${encodeURIComponent(memes[index].url)}`}
-                  alt={`/api/proxy/${encodeURIComponent(memes[index].url)}`}
+                  src={`/api/proxy/${encodeURIComponent(
+                    memes[index].url,
+                  )}?width=${
+                    window.document.body.offsetWidth > 540
+                      ? 540
+                      : window.document.body.offsetWidth
+                  }`}
+                  alt=":)"
+                  onLoad={this.handleImageLoaded}
+                  onError={this.handleImageErrored}
                 />
                 {memes[index].id > 0 && (
                   <div
@@ -157,7 +208,11 @@ export class Post extends React.Component {
                         aria-label="Like"
                         onClick={this.handleLikeDislike(1)}
                       >
-                        <ThumbUp key={`like-icon-key-${memes[index].id}`} />
+                        <ArrowUpwardSharp
+                          color="inherit"
+                          className={classes.shadowIcons}
+                          key={`like-icon-key-${memes[index].id}`}
+                        />
                       </IconButton>
                       <InputLabel
                         disabled
@@ -177,8 +232,10 @@ export class Post extends React.Component {
                         onClick={this.handleLikeDislike(0)}
                         key={`dislike-key-${memes[index].id}`}
                       >
-                        <ThumbDown
+                        <ArrowDownwardSharp
+                          color="inherit"
                           key={`dislike-icon-key-${memes[index].id}`}
+                          className={classes.shadowIcons}
                         />
                       </IconButton>
                       <InputLabel
@@ -195,7 +252,7 @@ export class Post extends React.Component {
                     </div>
                     <div className={classes.shareParentDiv}>
                       <RedditShareButton
-                        className={classes.somePadding}
+                        className={classes.shadowIcons}
                         url={memes[index].url}
                       >
                         <RedditIcon size={28} />
@@ -204,7 +261,7 @@ export class Post extends React.Component {
                         {count => (count === 0 ? '' : count)}
                       </RedditShareCount>
                       <FacebookShareButton
-                        className={classes.somePadding}
+                        className={classes.shadowIcons}
                         url={memes[index].url}
                       >
                         <FacebookIcon size={28} />
@@ -214,14 +271,14 @@ export class Post extends React.Component {
                         {count => (count === 0 ? '' : count)}
                       </FacebookShareCount>
                       <TwitterShareButton
-                        className={classes.somePadding}
+                        className={classes.shadowIcons}
                         url={memes[index].url}
                       >
                         <TwitterIcon size={28} />
                       </TwitterShareButton>
 
                       <TelegramShareButton
-                        className={classes.somePadding}
+                        className={classes.shadowIcons}
                         url={memes[index].url}
                       >
                         <TelegramIcon size={28} />
@@ -252,7 +309,11 @@ export class Post extends React.Component {
                         onClick={this.handleClickOpenComments}
                         key={`comment-key-${memes[index].id}`}
                       >
-                        <Comment key={`comment-icon-key-${memes[index].id}`} />
+                        <CommentSharp
+                          color="inherit"
+                          className={classes.shadowIcons}
+                          key={`comment-icon-key-${memes[index].id}`}
+                        />
                       </IconButton>
                     </div>
                   </div>
@@ -278,13 +339,18 @@ Post.propTypes = {
   memes: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   dbUser: PropTypes.object,
   likeDislike: PropTypes.func,
+  reportMemesSlide: PropTypes.func,
   classes: PropTypes.object.isRequired,
   index: PropTypes.number,
   widthDiv: PropTypes.string,
+  openComments: PropTypes.bool,
+  imgStatus: PropTypes.string,
+  theme: PropTypes.object,
 };
 const mapDispatchToProps = dispatch => ({
   likeDislike: likeDislikeObjToSend =>
     dispatch(likeDislike(likeDislikeObjToSend)),
+  reportMemesSlide: idPost => dispatch(reportMemesSlide(idPost)),
 });
 
 const mapStateToProps = createStructuredSelector({
@@ -300,5 +366,6 @@ const withConnect = connect(
 export default compose(
   withConnect,
   sizeMe(),
+  withTheme(),
   withStyles(styles),
 )(Post);

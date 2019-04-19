@@ -15,7 +15,7 @@ import injectSaga from 'utils/injectSaga';
 import { makeSelecDBUser } from 'containers/App/selectors';
 import { virtualize } from 'react-swipeable-views-utils';
 import SwipeableViews from 'react-swipeable-views';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import reducer from './reducer';
@@ -25,79 +25,61 @@ import { loadMemesSlide } from './actions';
 import AccessDenied from '../../components/AccessDenied/index';
 import { makeSelecMemesSlide, makeSelectBoundries } from './selectors';
 const VirtualizeSwipeableViews = virtualize(SwipeableViews);
-const styles = () => ({
-  imageDialog: {
-    padding: '5px 5px 5px 5px !important',
-  },
-  noPadding: {
-    padding: '5px 5px 5px 5px !important',
-  },
+const styles = theme => ({
   sliderHandler: {
     display: 'flex',
     flexDirection: 'column',
   },
   containerDivSlider: {
     margin: 'auto',
+    height: 'auto',
   },
   root: {
     paddingTop: '85px',
     maxWidth: '100%',
     maxHeght: '100%',
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#0c1024',
-  },
-  containerDiv: {},
-  bottomHandler: {
-    display: 'flex',
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderBottomLeftRadius: '10px',
-    borderBottomRightRadius: '10px',
-  },
-  commentsHandler: {
-    marginInlineStart: 'auto',
-  },
-  containerImage: {
-    // paddingTop: '20px',
-  },
-  itemRow: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    display: 'inline-block',
-  },
-  imgClass: {
-    width: '100%',
-  },
-  emptyDiv: {
-    opacity: '0',
-    height: '30px',
-  },
-  dislikeIcon: {
-    color: '#b53f51',
-  },
-  likeIcon: {
-    color: '#51b53f',
-  },
-  whiteColor: {
-    color: 'white !important',
+    // backgroundColor: theme.palette.primary.dark,
+    // backgroundColor: '#0c1024',
   },
   iconNext: {
-    color: 'white !important',
-    fontSize: 60,
+    // color: 'white !important',
+    // fontSize: 60,
+    // float: 'right',
     float: 'right',
+    fontSize: 50,
+    // transition: 'background-color 0.3s',
+    transition: theme.transitions.easing.sharp,
+    // backgroundColor: theme.palette.primary.main,
+    // color: theme.palette.primary.contrastText,
+    color: theme.palette.primary.contrastText,
+    marginTop: '30px',
+    ':hover': {
+      color: theme.palette.action.hover,
+    },
+    // hover: theme.palette.action.hover,
+    // hoverOpacity: theme.palette.action.hoverOpacity,
+    boxShadow: theme.shadows[3],
   },
   iconPrevious: {
-    color: 'white !important',
-    fontSize: 60,
+    // color: 'white !important',
+    // fontSize: 60,
+    // float: 'left',
     float: 'left',
+    fontSize: 50,
+    // transition: 'background-color 0.3s',
+    transition: theme.transitions.easing.sharp,
+    // backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    // hover: theme.palette.action.hover,
+    // hoverOpacity: theme.palette.action.hoverOpacity,
+    marginTop: '30px',
+    ':hover': {
+      color: theme.palette.action.hover,
+    },
+    boxShadow: theme.shadows[3],
   },
-  containerPost: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  divLikeHandler: {
-    float: 'left',
+  navigationTop: {
+    paddingBottom: '10px',
   },
 });
 export class PostPage extends React.Component {
@@ -165,12 +147,28 @@ export class PostPage extends React.Component {
     this.handleChangeIndex(index, indexLatest);
   };
 
+  // updateHeight2 = updateHeight => {
+  //   debugger;
+  //   console.table(updateHeight);
+  //   updateHeight = () => {
+  //     console.table(updateHeight);
+  //   };
+  // };
+
   slideRenderer = ({ key, index }) => {
-    const { size } = this.props;
+    const { size, match, boundries } = this.props;
+
+    const openComments =
+      boundries.minIndex + 1 === index
+        ? match.params.withComments !== 'false'
+        : false;
+
     return (
       <Post
         key={key}
         index={index}
+        openComments={openComments}
+        imgStatus="loading"
         widthDiv={size.width > 768 ? '540px' : '100%'}
       />
     );
@@ -178,6 +176,7 @@ export class PostPage extends React.Component {
 
   render() {
     const { memesSlide, classes, size, auth, dbUser, match } = this.props;
+
     return (match.params.idUser &&
       auth.isAuthenticated() &&
       Number(dbUser.id) === Number(match.params.idUser)) ||
@@ -191,7 +190,7 @@ export class PostPage extends React.Component {
             {memesSlide.length > 0 && (
               <div key="slider-handler" className={classes.sliderHandler}>
                 {size.width > 768 && (
-                  <div key="slider-handler-top">
+                  <div key="slider-handler-top" className={classes.navigationTop}>
                     <ChevronLeft
                       key="prev"
                       className={classes.iconPrevious}
@@ -204,6 +203,7 @@ export class PostPage extends React.Component {
                     />
                   </div>
                 )}
+
                 <VirtualizeSwipeableViews
                   enableMouseEvents
                   overscanSlideBefore={1}
@@ -253,9 +253,10 @@ const withReducer = injectReducer({ key: 'post', reducer });
 const withSaga = injectSaga({ key: 'post', saga });
 
 export default compose(
+  withConnect,
   withReducer,
   withSaga,
   sizeMe(),
-  withConnect,
+  withTheme(),
   withStyles(styles),
 )(PostPage);

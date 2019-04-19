@@ -7,6 +7,7 @@ import {
   CHANGE_COMMENTS_NUMBER,
   REMOVE_COMMENT_SUCCESS,
   CHANGE_MIN_MAX_INDEX,
+  REPORT_MEME_SLIDE_SUCCESS,
 } from './constants';
 
 export const initialState = fromJS({
@@ -75,6 +76,7 @@ function postReducer(state = initialState, action) {
             emptyarr.push(...action.memes);
           }
           emptyarr[oldBoundries.minIndex] = deadEndMeme;
+          emptyarr.push(deadEndMeme);
 
           return state.set('memes', fromJS(emptyarr));
         }
@@ -111,6 +113,7 @@ function postReducer(state = initialState, action) {
       }
       let oldCommentsReplays = state.get('comments').toJS()[action.idPost];
       const localComment = action.comments;
+      let newCommentWithReplyIndex = -1;
       if (
         oldCommentsReplays &&
         oldCommentsReplays.length > 0 &&
@@ -120,11 +123,13 @@ function postReducer(state = initialState, action) {
         oldCommentsReplays = oldCommentsReplays.filter(el => el.replays);
         if (oldCommentsReplays.length > 0) {
           for (let index = 0; index < oldCommentsReplays.length; index += 1) {
-            localComment[
-              localComment.findIndex(
-                el => el.id_comment === oldCommentsReplays[index].id_comment,
-              )
-            ].replays = oldCommentsReplays[index].replays;
+            newCommentWithReplyIndex = localComment.findIndex(
+              el => el.id_comment === oldCommentsReplays[index].id_comment,
+            );
+            if (newCommentWithReplyIndex > -1) {
+              localComment[newCommentWithReplyIndex].replays =
+                oldCommentsReplays[index].replays;
+            }
           }
         }
       }
@@ -179,6 +184,13 @@ function postReducer(state = initialState, action) {
           ? action.nbrComment
           : oldsMemes[parentMemeIdenx].nbrComments - 1;
       return state.set('memes', fromJS(oldsMemes));
+    }
+    case REPORT_MEME_SLIDE_SUCCESS: {
+      const oldMemes = state.get('memes').toJS();
+      oldMemes[
+        oldMemes.findIndex(meme => meme && meme.id === action.post)
+      ].reported += 1;
+      return state.set('memes', fromJS(oldMemes));
     }
     default:
       return state;

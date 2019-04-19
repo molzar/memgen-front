@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import ReactPaginate from 'react-paginate';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 import classnames from 'classnames';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -16,7 +16,6 @@ import TextField from '@material-ui/core/TextField';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 
-import red from '@material-ui/core/colors/red';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Grid from '@material-ui/core/Grid';
 import Fab from '@material-ui/core/Fab';
@@ -24,6 +23,9 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import RemoveIcon from '@material-ui/icons/Remove';
 import InputLabel from '@material-ui/core/InputLabel';
+
+import { FormattedMessage } from 'react-intl';
+import messages from './messages';
 import { makeSelecGridProps, makeSelecDBUser } from '../App/selectors';
 import { makeSelectComments } from './selectors';
 import {
@@ -36,16 +38,9 @@ import {
 const styles = theme => ({
   card: {
     maxWidth: 'auto',
-    backgroundColor: 'lightgray',
+    backgroundColor: theme.palette.grey[200],
     marginTop: '5px',
     borderRadius: '0px',
-  },
-  media: {
-    height: 0,
-    paddingTop: '56.25%', // 16:9
-  },
-  actions: {
-    display: 'flex',
   },
   expand: {
     transform: 'rotate(0deg)',
@@ -58,20 +53,20 @@ const styles = theme => ({
     transform: 'rotate(180deg)',
   },
   avatar: {
-    backgroundColor: red[500],
+    backgroundColor: theme.palette.error.main,
     margin: 10,
   },
   customTextField: {
     // maxWidth: '60%',
     width: 'inherit',
-    color: 'white',
+    color: theme.palette.primary.contrastText,
     flex: '1 1 25%',
   },
   fab: {
     margin: 'auto',
   },
   whiteText: {
-    color: 'white',
+    color: theme.palette.primary.contrastText,
   },
   extendedIcon: {
     margin: '10px',
@@ -93,48 +88,47 @@ const styles = theme => ({
     padding: '0px',
     paddingBottom: '0px',
     borderRadius: '0px',
-    backgroundColor: 'darkgrey',
+    backgroundColor: theme.palette.grey[400],
   },
   paginate: {
     padding: 0,
     margin: 0,
   },
-  bottomHandler: {
-    textAlign: 'center',
-  },
   paginateli: {
     display: 'inline',
   },
   paginateliaNextComment: {
-    color: '#fff',
     padding: '8px 16px',
     float: 'right',
     textDecoration: 'none',
-    transition: 'background-color 0.3s',
-    backgroundColor: '#3f51b5',
+    transition: theme.transitions.easing.sharp,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
     marginTop: '30px',
-    marginRight: '10px',
+    ':hover': {
+      color: theme.palette.action.hover,
+    },
+    boxShadow: theme.shadows[2],
   },
   paginateliaPreviousComment: {
-    color: '#fff',
     padding: '8px 16px',
     float: 'left',
     textDecoration: 'none',
-    transition: 'background-color 0.3s',
-    backgroundColor: '#3f51b5',
+    transition: theme.transitions.easing.sharp,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
     marginTop: '30px',
-    marginLeft: '10px',
+    boxShadow: theme.shadows[2],
   },
   paginateActive: {
-    backgroundColor: '#3f51b5',
-    color: 'white',
-    border: '1px solid #3f51b5',
+    backgroundColor: theme.palette.primary.dark,
+    color: theme.palette.primary.contrastText,
   },
   hideMe: {
     display: 'none !important',
   },
   rootdivComment: {
-    backgroundColor: '#0c1024',
+    backgroundColor: theme.palette.primary.light,
     paddingLeft: '5px',
     paddingRight: '5px',
     paddingBottom: '10px',
@@ -270,18 +264,23 @@ class CommentsComponent extends Component {
               src={dbUser.avatarurl}
               className={classes.avatar}
             />
-            <TextField
-              placeholder="Write your comment ..."
-              InputLabelProps={{ shrink: true }}
-              InputProps={{ className: classes.whiteText }}
-              className={classes.customTextField}
-              multiline
-              rows={1}
-              rowsMax={4}
-              ref={this.textComment}
-              value={this.state.textComment}
-              onChange={this.handleTextChange}
-            />
+            <FormattedMessage {...messages.addCommentPlaceholder}>
+              {placeholder => (
+                <TextField
+                  placeholder={placeholder}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{ className: classes.whiteText }}
+                  className={classes.customTextField}
+                  multiline
+                  rows={1}
+                  rowsMax={4}
+                  ref={this.textComment}
+                  value={this.state.textComment}
+                  onChange={this.handleTextChange}
+                />
+              )}
+            </FormattedMessage>
+
             <Fab
               color="primary"
               size="small"
@@ -396,18 +395,22 @@ class CommentsComponent extends Component {
                         src={dbUser.avatarurl}
                         className={classes.avatar}
                       />
-                      <TextField
-                        placeholder="Add a replay ..."
-                        InputLabelProps={{ shrink: true }}
-                        className={classes.customTextField}
-                        multiline
-                        fullWidth
-                        rows={1}
-                        rowsMax={4}
-                        ref={this.replayTextComment}
-                        value={this.state.replayTextComment}
-                        onChange={this.handleReplayTextChange}
-                      />
+                      <FormattedMessage {...messages.addReplyPlaceholder}>
+                        {placeholder => (
+                          <TextField
+                            placeholder={placeholder}
+                            InputLabelProps={{ shrink: true }}
+                            className={classes.customTextField}
+                            multiline
+                            fullWidth
+                            rows={1}
+                            rowsMax={4}
+                            ref={this.replayTextComment}
+                            value={this.state.replayTextComment}
+                            onChange={this.handleReplayTextChange}
+                          />
+                        )}
+                      </FormattedMessage>
                       <Fab
                         color="primary"
                         size="small"
@@ -531,6 +534,10 @@ class CommentsComponent extends Component {
                       }
                       nextLinkClassName={classes.paginateliaNextComment}
                       key={`replay_paginate${comment.id_comment}`}
+                      previousLabel={
+                        <FormattedMessage {...messages.previous} />
+                      }
+                      nextLabel={<FormattedMessage {...messages.next} />}
                     />
                   </div>
                 )}
@@ -552,6 +559,8 @@ class CommentsComponent extends Component {
               nextClassName={classes.paginateli}
               previousLinkClassName={classes.paginateliaPreviousComment}
               nextLinkClassName={classes.paginateliaNextComment}
+              previousLabel={<FormattedMessage {...messages.previous} />}
+              nextLabel={<FormattedMessage {...messages.next} />}
             />
           </div>
         )}
@@ -596,5 +605,6 @@ export default compose(
   withRouter,
   withConnect,
   sizeMe(),
+  withTheme(),
   withStyles(styles),
 )(CommentsComponent);

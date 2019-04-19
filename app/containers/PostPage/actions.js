@@ -29,6 +29,8 @@ import {
   REMOVE_COMMENT,
   REMOVE_COMMENT_SUCCESS,
   CHANGE_COMMENTS_NUMBER,
+  REPORT_MEME_SLIDE,
+  REPORT_MEME_SLIDE_SUCCESS,
 } from './constants';
 /**
  * Changes the input field of the form
@@ -59,6 +61,20 @@ export function loadMemesSlideSucces(memes, whereToLoad) {
     type: LOAD_MEMES_SLIDE_SUCCESS,
     memes,
     whereToLoad,
+  };
+}
+
+export function reportMemesSlide(idPost) {
+  return {
+    type: REPORT_MEME_SLIDE,
+    idPost,
+  };
+}
+
+export function reportMemesSlideSucces(post) {
+  return {
+    type: REPORT_MEME_SLIDE_SUCCESS,
+    post,
   };
 }
 

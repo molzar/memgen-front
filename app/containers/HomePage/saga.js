@@ -5,8 +5,22 @@ import { reposLoaded, repoLoadingError } from 'containers/App/actions';
 
 import request from 'utils/request';
 import { makeSelectUsername } from 'containers/HomePage/selectors';
-import { loadMemesSuccess, updateMemeAfterLike } from './actions';
-import { LOAD_MEMES, LIKE_DISLIKE } from './constants';
+import {
+  loadMemesSuccess,
+  updateMemeAfterLike,
+  removePostSuccess,
+  removePostCDNFail,
+  removePostDB,
+  removePostDBFail,
+  reportMemesSlideSucces,
+} from './actions';
+import {
+  LOAD_MEMES,
+  LIKE_DISLIKE,
+  REMOVE_POST,
+  REMOVE_POST_DB,
+  REPORT_MEME_SLIDE,
+} from './constants';
 /**
  * Github repos request/response handler
  */
@@ -70,15 +84,76 @@ export function* insertLikePostUserDB(action) {
   }
 }
 
-/**
- * Root saga manages watcher lifecycle
- */
+export function* removePostCDNSaga(action) {
+  const requestURL = `https://api.imgur.com/3/image/${action.deletehash}`;
+  const auth = 'Client-ID b728dabaeaf49a5';
+  const options = {
+    method: 'DELETE',
+    headers: {
+      Authorization: auth,
+      Accept: 'application/json',
+    },
+  };
+
+  try {
+    const response = yield call(request, requestURL, options);
+    if (!response || !response.success) {
+      yield put(
+        removePostCDNFail(action.indexPost, action.idPost, response.error),
+      );
+    } else {
+      yield put(removePostDB(action.indexPost, action.idPost));
+    }
+  } catch (err) {
+    yield put(removePostCDNFail(action.indexPost, action.idPost, err));
+  }
+}
+
+export function* removePostDBSaga(action) {
+  const requestURL = `/api/posts/${action.idPost}`;
+
+  const options = {
+    method: 'DELETE',
+  };
+
+  try {
+    const response = yield call(request, requestURL, options);
+    if (!response || !response.success) {
+      yield put(
+        removePostDBFail(action.indexPost, action.idPost, response.error),
+      );
+    } else {
+      yield put(removePostSuccess(action.indexPost, action.idPost));
+    }
+  } catch (err) {
+    yield put(removePostDBFail(action.indexPost, action.idPost, err));
+  }
+}
+
+export function* reportMemeSlideSaga(action) {
+  const requestURL = `/api/posts/${action.idPost}`;
+
+  const options = {
+    method: 'PUT',
+  };
+
+  try {
+    const response = yield call(request, requestURL, options);
+    if (!response || !response.success) {
+      yield put(reportMemesSlideSucces(action.idPost));
+    } else {
+      yield put(reportMemesSlideSucces(action.idPost));
+    }
+  } catch (err) {
+    yield put(reportMemesSlideSucces(action.idPost));
+  }
+}
+
 export default function* initHomeSaga() {
-  // Watches for LOAD_REPOS actions and calls getRepos when one comes in.
-  // By using `takeLatest` only the result of the latest API call is applied.
-  // It returns task descriptor (just like fork) so we can continue execution
-  // It will be cancelled automatically on component unmount
   yield takeLatest(LOAD_REPOS, getRepos);
   yield takeLatest(LOAD_MEMES, getMemes);
   yield takeLatest(LIKE_DISLIKE, insertLikePostUserDB);
+  yield takeLatest(REMOVE_POST, removePostCDNSaga);
+  yield takeLatest(REMOVE_POST_DB, removePostDBSaga);
+  yield takeLatest(REPORT_MEME_SLIDE, reportMemeSlideSaga);
 }

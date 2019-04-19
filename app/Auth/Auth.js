@@ -104,6 +104,7 @@ export default class Auth {
           this.setProfile(profile);
           this.checkDBUser(profile);
         } else {
+          this.logout();
           this.clearCookies();
           this.login();
         }

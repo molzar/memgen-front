@@ -6,21 +6,22 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import ReactPaginate from 'react-paginate';
-
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 import {
   List,
   CellMeasurer,
   CellMeasurerCache,
   WindowScroller,
 } from 'react-virtualized';
+import { FormattedMessage } from 'react-intl';
+import messages from './messages';
 import { loadMemes } from './actions';
 import { findPages } from '../App/actions';
 import { makeSelectMemes } from './selectors';
 import { makeSelecGridProps } from '../App/selectors';
 import ListItemsRowRenderer from './ListItemsRowRenderer';
 
-const styles = () => ({
+const styles = theme => ({
   list: {
     height: '100vh',
     margin: 'auto',
@@ -35,7 +36,6 @@ const styles = () => ({
     padding: '0 1rem 1rem 1rem',
     overflow: 'auto',
     margin: 'auto',
-    backgroundColor: '#0c1024',
     alignItems: 'center',
   },
   WindowScrollerWrapper: {
@@ -63,27 +63,37 @@ const styles = () => ({
     display: 'inline',
   },
   paginateliaNext: {
-    color: '#fff',
     padding: '8px 16px',
     float: 'right',
     textDecoration: 'none',
-    transition: 'background-color 0.3s',
-    backgroundColor: '#3f51b5',
+    // transition: 'background-color 0.3s',
+    transition: theme.transitions.easing.sharp,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
     marginTop: '30px',
+    ':hover': {
+      color: theme.palette.action.hover,
+    },
+    // hover: theme.palette.action.hover,
+    // hoverOpacity: theme.palette.action.hoverOpacity,
+    boxShadow: theme.shadows[2],
   },
   paginateliaPrevious: {
-    color: '#fff',
     padding: '8px 16px',
     float: 'left',
     textDecoration: 'none',
-    transition: 'background-color 0.3s',
-    backgroundColor: '#3f51b5',
+    // transition: 'background-color 0.3s',
+    transition: theme.transitions.easing.sharp,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    // hover: theme.palette.action.hover,
+    // hoverOpacity: theme.palette.action.hoverOpacity,
     marginTop: '30px',
+    boxShadow: theme.shadows[2],
   },
   paginateActive: {
-    backgroundColor: '#3f51b5',
-    color: 'white',
-    border: '1px solid #3f51b5',
+    backgroundColor: theme.palette.primary.dark,
+    color: theme.palette.primary.contrastText,
   },
   hideMe: {
     display: 'none !important',
@@ -95,7 +105,7 @@ class ListItemsPageVirtualized extends Component {
     super(props);
     this.cellMeasurerCache = new CellMeasurerCache({
       fixedWidth: true,
-      minHeight: 150,
+      minHeight: 500,
     });
 
     this.scrollRef = React.createRef();
@@ -139,10 +149,10 @@ class ListItemsPageVirtualized extends Component {
     );
   };
 
-  renderRow = (memes, dbUser) => ({
+  renderRow = memes => ({
     index,
-    isScrolling,
-    isVisible,
+    // isScrolling,
+    // isVisible,
     key,
     style,
     parent,
@@ -160,7 +170,6 @@ class ListItemsPageVirtualized extends Component {
           key={index}
           index={index}
           meme={memes[index]}
-          // dbUser={dbUser}
           idUserPage={
             this.props.match.url === '/myMemes' ? this.props.userID : ''
           }
@@ -172,60 +181,64 @@ class ListItemsPageVirtualized extends Component {
   );
 
   render() {
-    const { memes, classes, gridProps, dbUser, size } = this.props;
+    const { memes, classes, gridProps, size } = this.props;
     return (
       <div className={classes.paddingTop85}>
-        <WindowScroller
-          scrollElement={window}
-          style={{ width: size.width > 768 ? size.width : 580 }}
-          ref={this.scrollRef}
-        >
-          {({
-            height,
-            isScrolling,
-            registerChild,
-            onChildScroll,
-            scrollTop,
-          }) => (
-            <div className={styles.WindowScrollerWrapper}>
-              <div ref={registerChild}>
-                <List
-                  ref={el => {
-                    window.listEl = el;
-                  }}
-                  autoHeight
-                  className={styles.List}
-                  height={height}
-                  isScrolling={isScrolling}
-                  onScroll={onChildScroll}
-                  overscanRowCount={5}
-                  rowCount={memes.length}
-                  rowHeight={this.cellMeasurerCache.rowHeight}
-                  deferredMeasurementCache={this.cellMeasurerCache}
-                  rowRenderer={this.renderRow(memes, dbUser)}
-                  scrollTop={scrollTop}
-                  width={size.width > 768 ? 590 : size.width}
-                />
+        {memes.length > 0 && (
+          <WindowScroller
+            scrollElement={window}
+            style={{ width: size.width > 768 ? size.width : 580 }}
+            ref={this.scrollRef}
+          >
+            {({
+              height,
+              isScrolling,
+              registerChild,
+              onChildScroll,
+              scrollTop,
+            }) => (
+              <div className={styles.WindowScrollerWrapper}>
+                <div ref={registerChild}>
+                  <List
+                    ref={el => {
+                      window.listEl = el;
+                    }}
+                    autoHeight
+                    className={styles.List}
+                    height={height}
+                    isScrolling={isScrolling}
+                    onScroll={onChildScroll}
+                    overscanRowCount={3}
+                    rowCount={memes.length}
+                    rowHeight={this.cellMeasurerCache.rowHeight}
+                    deferredMeasurementCache={this.cellMeasurerCache}
+                    rowRenderer={this.renderRow(memes)}
+                    scrollTop={scrollTop}
+                    width={size.width > 768 ? 590 : size.width}
+                  />
+                </div>
+                <div className={classes.bottomHandler}>
+                  <ReactPaginate
+                    pageCount={gridProps.pages || 1}
+                    marginPagesDisplayed={0}
+                    pageRangeDisplayed={0}
+                    onPageChange={this.handlePageClick}
+                    containerClassName={classes.paginate}
+                    activeClassName={classes.paginateActive}
+                    pageClassName={classes.hideMe}
+                    breakClassName={classes.hideMe}
+                    previousClassName={classes.paginateli}
+                    nextClassName={classes.paginateli}
+                    previousLinkClassName={classes.paginateliaPrevious}
+                    nextLinkClassName={classes.paginateliaNext}
+                    previousLabel={<FormattedMessage {...messages.previous} />}
+                    nextLabel={<FormattedMessage {...messages.next} />}
+                  />
+                </div>
               </div>
-              <div className={classes.bottomHandler}>
-                <ReactPaginate
-                  pageCount={gridProps.pages || 1}
-                  marginPagesDisplayed={0}
-                  pageRangeDisplayed={0}
-                  onPageChange={this.handlePageClick}
-                  containerClassName={classes.paginate}
-                  activeClassName={classes.paginateActive}
-                  pageClassName={classes.hideMe}
-                  breakClassName={classes.hideMe}
-                  previousClassName={classes.paginateli}
-                  nextClassName={classes.paginateli}
-                  previousLinkClassName={classes.paginateliaPrevious}
-                  nextLinkClassName={classes.paginateliaNext}
-                />
-              </div>
-            </div>
-          )}
-        </WindowScroller>
+            )}
+          </WindowScroller>
+        )}
       </div>
     );
   }
@@ -263,5 +276,6 @@ export default compose(
   withRouter,
   withConnect,
   sizeMe(),
+  withTheme(),
   withStyles(styles),
 )(ListItemsPageVirtualized);

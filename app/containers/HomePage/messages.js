@@ -29,4 +29,16 @@ export default defineMessages({
     id: `${scope}.tryme.atPrefix`,
     defaultMessage: '@',
   },
+  next: {
+    id: `${scope}.next`,
+    defaultMessage: 'Next',
+  },
+  previous: {
+    id: `${scope}.previous`,
+    defaultMessage: 'Previous',
+  },
+  deleteMeme: {
+    id: `${scope}.deleteMeme`,
+    defaultMessage: 'Delete MeMe',
+  },
 });

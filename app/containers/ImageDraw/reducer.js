@@ -67,10 +67,11 @@ export const textAttrs = {
 };
 
 export const image = {
-  src: `/api/proxy/${encodeURIComponent('https://i.imgur.com/6qCxMKM.png')}`,
+  src: 'https://i.imgur.com/6qCxMKM.png',
   crossOrigin: 'Anonymous',
   width: 236,
   height: 213,
+  whereFrom: 'fromLink',
 };
 
 export const initialState = fromJS({

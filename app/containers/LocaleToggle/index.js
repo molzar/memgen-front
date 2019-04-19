@@ -18,6 +18,7 @@ import { makeSelectLocale } from '../LanguageProvider/selectors';
 
 export class LocaleToggle extends React.PureComponent {
   // eslint-disable-line react/prefer-stateless-function
+
   render() {
     return (
       <Wrapper>
@@ -43,7 +44,9 @@ const mapStateToProps = createSelector(makeSelectLocale(), locale => ({
 
 export function mapDispatchToProps(dispatch) {
   return {
-    onLocaleToggle: evt => dispatch(changeLocale(evt.target.value)),
+    onLocaleToggle: evt => {
+      dispatch(changeLocale(evt.target.value));
+    },
     dispatch,
   };
 }

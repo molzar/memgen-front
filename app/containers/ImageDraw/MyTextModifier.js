@@ -2,7 +2,7 @@ import React from 'react';
 import { fromJS } from 'immutable';
 import PropTypes from 'prop-types';
 import Input from '@material-ui/core/Input';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 import InputBase from '@material-ui/core/InputBase';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -181,5 +181,6 @@ const withConnect = connect(
 
 export default compose(
   withConnect,
+  withTheme(),
   withStyles(styles),
 )(MyTextModifier);

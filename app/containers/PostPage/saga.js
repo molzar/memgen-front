@@ -8,6 +8,7 @@ import {
   removeCommentsSucces,
   changeCommentNumber,
   changeMinMaxIndex,
+  reportMemesSlideSucces,
 } from './actions';
 import {
   LOAD_MEMES_SLIDE,
@@ -16,6 +17,7 @@ import {
   REMOVE_COMMENT,
   POST_COMMENT,
   EDIT_COMMENT,
+  REPORT_MEME_SLIDE,
 } from './constants';
 
 export function* loadMemesSlideSaga(action) {
@@ -200,6 +202,25 @@ export function* removeComment(action) {
   }
 }
 
+export function* reportMemeSlideSaga(action) {
+  const requestURL = `/api/posts/${action.idPost}`;
+
+  const options = {
+    method: 'PUT',
+  };
+
+  try {
+    const response = yield call(request, requestURL, options);
+    if (!response || !response.success) {
+      yield put(reportMemesSlideSucces(action.idPost));
+    } else {
+      yield put(reportMemesSlideSucces(action.idPost));
+    }
+  } catch (err) {
+    yield put(reportMemesSlideSucces(action.idPost));
+  }
+}
+
 export default function* initPostSaga() {
   // Watches for LOAD_REPOS actions and calls getRepos when one comes in.
   // By using `takeLatest` only the result of the latest API call is applied.
@@ -211,4 +232,5 @@ export default function* initPostSaga() {
   yield takeLatest(POST_COMMENT, postComment);
   yield takeLatest(EDIT_COMMENT, editComment);
   yield takeLatest(REMOVE_COMMENT, removeComment);
+  yield takeLatest(REPORT_MEME_SLIDE, reportMemeSlideSaga);
 }

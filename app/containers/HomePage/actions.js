@@ -21,6 +21,13 @@ import {
   LOAD_MEMES_SUCCESS,
   LIKE_DISLIKE,
   UPDATE_MEME_AFTER_LIKE,
+  REMOVE_POST,
+  REMOVE_POST_CDN_FAIL,
+  REMOVE_POST_DB,
+  REMOVE_POST_DB_FAIL,
+  REMOVE_POST_SUCCESS,
+  REPORT_MEME_SLIDE,
+  REPORT_MEME_SLIDE_SUCCESS,
 } from './constants';
 
 /**
@@ -64,5 +71,62 @@ export function updateMemeAfterLike(newMeme) {
   return {
     type: UPDATE_MEME_AFTER_LIKE,
     newMeme,
+  };
+}
+
+export function reportMemesSlide(idPost) {
+  return {
+    type: REPORT_MEME_SLIDE,
+    idPost,
+  };
+}
+
+export function reportMemesSlideSucces(post) {
+  return {
+    type: REPORT_MEME_SLIDE_SUCCESS,
+    post,
+  };
+}
+
+export function removePost(indexPost, idPost, deletehash) {
+  return {
+    type: REMOVE_POST,
+    indexPost,
+    idPost,
+    deletehash,
+  };
+}
+
+export function removePostCDNFail(indexPost, idPost, error) {
+  return {
+    type: REMOVE_POST_CDN_FAIL,
+    indexPost,
+    idPost,
+    error,
+  };
+}
+
+export function removePostDB(indexPost, idPost) {
+  return {
+    type: REMOVE_POST_DB,
+    indexPost,
+    idPost,
+  };
+}
+
+export function removePostDBFail(indexPost, idPost, error) {
+  return {
+    type: REMOVE_POST_DB_FAIL,
+    indexPost,
+    idPost,
+    error,
+  };
+}
+
+export function removePostSuccess(indexPost, idPost) {
+  return {
+    type: REMOVE_POST_SUCCESS,
+    indexPost,
+    idPost,
   };
 }

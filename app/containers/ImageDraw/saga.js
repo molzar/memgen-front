@@ -10,7 +10,6 @@ import {
   insertPostDBFail,
   uploadImageFail,
 } from './actions';
-import Config from '../../../server/conf/config';
 import { UPLOAD_IMAGE, INSERT_POST_DB } from './constants';
 
 export function* uploadImage(action) {
@@ -39,7 +38,6 @@ export function* uploadImage(action) {
     if (!response || !response.success) {
       yield put(uploadImageFail(response));
     } else {
-      debugger;
       yield put(insertPostDB(response, action.profile));
     }
   } catch (err) {
@@ -48,11 +46,13 @@ export function* uploadImage(action) {
 }
 
 export function* insertPostDBSaga(action) {
-  const requestURL = `http://${Config.apiHost}:${
-    Config.apiPort
-  }/api/posts?url=${action.responsUpload.data.link}&id_user=${
-    action.profile.id
-  }`;
+  const requestURL = `/api/posts?url=${
+    action.responsUpload.data.link
+  }&id_user=${action.profile.id}&width=${
+    action.responsUpload.data.width
+  }&height=${action.responsUpload.data.height}&title=${
+    action.responsUpload.data.title
+  }&delete_hash=${action.responsUpload.data.deletehash}`;
 
   const options = {
     method: 'POST',
