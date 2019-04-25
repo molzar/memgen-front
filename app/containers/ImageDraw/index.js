@@ -7,7 +7,6 @@ import FileCopySharp from '@material-ui/icons/FileCopySharp';
 import injectSaga from 'utils/injectSaga';
 import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
@@ -18,7 +17,6 @@ import ReplayIcon from '@material-ui/icons/Replay';
 import { compose } from 'redux';
 import ImageUploader from 'react-images-upload';
 import { connect } from 'react-redux';
-// import SwipeableViews from 'react-swipeable-views';
 import { createStructuredSelector } from 'reselect';
 import injectReducer from 'utils/injectReducer';
 import { Stage, Layer } from 'react-konva';
@@ -35,7 +33,6 @@ import {
   FacebookShareCount,
   RedditShareCount,
 } from 'react-share';
-// import { virtualize } from 'react-swipeable-views-utils';
 import messages from './messages';
 import saga from './saga';
 import reducer, {
@@ -64,6 +61,7 @@ import { makeSelecDBUser } from '../App/selectors';
 import MyTextModifier from './MyTextModifier';
 import URLImage from './URLImage';
 import MyText from './MyText';
+import ImgSlider from './ImgSlider';
 
 // const VirtualizeSwipeableViews = virtualize(SwipeableViews);
 
@@ -78,10 +76,11 @@ const styles = theme => ({
   card: {
     textAlign: 'center',
     margin: 'auto',
-    paddingBottom: '10px',
+
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
-    borderRadious: '0px !important',
+    borderRadius: '0px',
+    paddingBottom: 20,
     boxShadow: theme.shadows[3],
   },
   actions: {
@@ -99,7 +98,7 @@ const styles = theme => ({
     position: 'relative',
     width: '100%',
     height: '100%',
-    paddingTop: '90px',
+    paddingTop: '75px',
     padding: theme.spacing.unit * 1,
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
@@ -220,8 +219,8 @@ class ImageDraw extends React.Component {
         const localimageFromBase64 = {
           src: result.target.result,
           crossOrigin: 'Anonymous',
-          width: 236,
-          height: 213,
+          // width: 236,
+          // height: 213,
           whereFrom: 'fromFile',
         };
 
@@ -241,12 +240,13 @@ class ImageDraw extends React.Component {
       uploadInput,
       latestUpload,
     } = this.props;
+
     return (
       <div className={classes.content}>
         <Card className={classes.card} style={{ width: loadedImage.width }}>
-          <FormattedMessage {...messages.titleMakeYourOwnMeme}>
+          {/* <FormattedMessage {...messages.titleMakeYourOwnMeme}>
             {placeholder => <CardHeader title={placeholder} />}
-          </FormattedMessage>
+          </FormattedMessage> */}
           {base64Meme && base64Meme !== '' ? (
             <a href={base64Meme} download>
               <img src={base64Meme} alt=":)" />
@@ -436,18 +436,8 @@ class ImageDraw extends React.Component {
               </IconButton>
             </CardActions>
           )}
-          {/* {!base64Meme &&
-            base64Meme === '' && (
-            <VirtualizeSwipeableViews
-              enableMouseEvents
-              overscanSlideBefore={1}
-              overscanSlideAfter={1}
-              onChangeIndex={this.onChangeIndex}
-              index={this.state.index}
-              slideRenderer={this.slideRenderer}
-            />
-          )} */}
         </Card>
+        <ImgSlider />
       </div>
     );
   }

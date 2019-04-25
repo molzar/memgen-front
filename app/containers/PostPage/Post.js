@@ -6,7 +6,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-// import Image from 'material-ui-image';
 import IconButton from '@material-ui/core/IconButton';
 import InputLabel from '@material-ui/core/InputLabel';
 import ArrowUpwardSharp from '@material-ui/icons/ArrowUpwardSharp';
@@ -31,15 +30,17 @@ import {
   FacebookShareCount,
   RedditShareCount,
 } from 'react-share';
-import CircularProgress from '@material-ui/core/CircularProgress';
+
 import CommentsComponent from './CommentsComponent';
 import { makeSelecMemesSlide } from './selectors';
 import { reportMemesSlide, likeDislike } from './actions';
 import TopPost from '../../components/TopPost';
+import ImgWithSpinner from './ImgWithSpinner';
 const styles = theme => ({
   imageDialog: {
     padding: '0px 0px 0px 0px !important',
     width: '540xp',
+    boxShadow: theme.shadows[3],
   },
   noPadding: {
     padding: '0px 0px 0px 0px !important',
@@ -51,12 +52,10 @@ const styles = theme => ({
   },
   somePadding: {
     margin: '5px',
-    boxShadow: '0.1px 0.1px 0.1px 2px rgba(255, 255, 255, .2)',
+    boxShadow: theme.shadows[3],
   },
   bottomHandler: {
-    // backgroundColor: '#0c1024',
     backgroundColor: theme.palette.primary.main,
-
     display: 'flex',
     flexDirection: 'row',
   },
@@ -68,7 +67,6 @@ const styles = theme => ({
     height: 'auto',
   },
   dislikeIcon: {
-    // color: '#b53f51',
     color: theme.palette.secondary.main,
   },
   shadowIcons: {
@@ -86,7 +84,6 @@ const styles = theme => ({
     alignItems: 'center',
     margin: 'auto',
     color: theme.palette.primary.main,
-    //
   },
   progress: {
     margin: 'auto',
@@ -102,15 +99,10 @@ const styles = theme => ({
 
 export class Post extends React.Component {
   constructor(props) {
-    super();
+    super(props);
     this.state = {
       openComments: props.openComments || false,
-      imageStatus: props.imgStatus || 'loading',
     };
-  }
-
-  componentDidMount() {
-    this.setState({ imageStatus: 'loading' });
   }
 
   handleClickOpenComments = () => {
@@ -138,19 +130,10 @@ export class Post extends React.Component {
     this.props.reportMemesSlide(idPost);
   };
 
-  handleImageLoaded = () => {
-    this.setState({ imageStatus: 'loaded' });
-  };
-
-  handleImageErrored = () => {
-    this.setState({ imageStatus: 'failed to load' });
-  };
-
   render() {
     const { index, classes, memes, widthDiv } = this.props;
-
     return (
-      <>
+      <div key={`container-post-index-${index}`}>
         {memes[index] && (
           <div style={{ width: widthDiv }}>
             <Card
@@ -169,31 +152,10 @@ export class Post extends React.Component {
                 className={classes.noPadding}
                 key={`dialog-content-${memes[index].id}`}
               >
-                {this.state.imageStatus === 'loading' && (
-                  <div
-                    key={`container-loading-${memes[index].id}`}
-                    className={classes.containerLoading}
-                  >
-                    <CircularProgress
-                      key={`loading-${memes[index].id}`}
-                      className={classes.progress}
-                      size={100}
-                    />
-                  </div>
-                )}
-                <img
-                  className={classes.imageDialog}
-                  key={`dialog-content-text-${memes[index].id}`}
-                  src={`/api/proxy/${encodeURIComponent(
-                    memes[index].url,
-                  )}?width=${
-                    window.document.body.offsetWidth > 540
-                      ? 540
-                      : window.document.body.offsetWidth
-                  }`}
-                  alt=":)"
-                  onLoad={this.handleImageLoaded}
-                  onError={this.handleImageErrored}
+                <ImgWithSpinner
+                  classes={classes}
+                  meme={memes[index]}
+                  imageStatus={this.props.imgStatus}
                 />
                 {memes[index].id > 0 && (
                   <div
@@ -330,7 +292,7 @@ export class Post extends React.Component {
             </Card>
           </div>
         )}
-      </>
+      </div>
     );
   }
 }

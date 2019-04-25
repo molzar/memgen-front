@@ -1,9 +1,3 @@
-/*
- * HomePage
- *
- * This is the first thing users see of our App, at the '/' route
- */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -35,43 +29,26 @@ const styles = theme => ({
     height: 'auto',
   },
   root: {
-    paddingTop: '85px',
+    paddingTop: '60px',
     maxWidth: '100%',
     maxHeght: '100%',
-    // backgroundColor: theme.palette.primary.dark,
-    // backgroundColor: '#0c1024',
   },
   iconNext: {
-    // color: 'white !important',
-    // fontSize: 60,
-    // float: 'right',
     float: 'right',
     fontSize: 50,
-    // transition: 'background-color 0.3s',
     transition: theme.transitions.easing.sharp,
-    // backgroundColor: theme.palette.primary.main,
-    // color: theme.palette.primary.contrastText,
     color: theme.palette.primary.contrastText,
     marginTop: '30px',
     ':hover': {
       color: theme.palette.action.hover,
     },
-    // hover: theme.palette.action.hover,
-    // hoverOpacity: theme.palette.action.hoverOpacity,
     boxShadow: theme.shadows[3],
   },
   iconPrevious: {
-    // color: 'white !important',
-    // fontSize: 60,
-    // float: 'left',
     float: 'left',
     fontSize: 50,
-    // transition: 'background-color 0.3s',
     transition: theme.transitions.easing.sharp,
-    // backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
-    // hover: theme.palette.action.hover,
-    // hoverOpacity: theme.palette.action.hoverOpacity,
     marginTop: '30px',
     ':hover': {
       color: theme.palette.action.hover,
@@ -147,14 +124,6 @@ export class PostPage extends React.Component {
     this.handleChangeIndex(index, indexLatest);
   };
 
-  // updateHeight2 = updateHeight => {
-  //   debugger;
-  //   console.table(updateHeight);
-  //   updateHeight = () => {
-  //     console.table(updateHeight);
-  //   };
-  // };
-
   slideRenderer = ({ key, index }) => {
     const { size, match, boundries } = this.props;
 
@@ -188,7 +157,11 @@ export class PostPage extends React.Component {
             style={{ width: size.width > 768 ? '540px' : '100%' }}
           >
             {memesSlide.length > 0 && (
-              <div key="slider-handler" className={classes.sliderHandler}>
+              <div
+                key="slider-handler"
+                className={classes.sliderHandler}
+                style={{ height: this.state.height }}
+              >
                 {size.width > 768 && (
                   <div key="slider-handler-top" className={classes.navigationTop}>
                     <ChevronLeft
@@ -211,6 +184,7 @@ export class PostPage extends React.Component {
                   onChangeIndex={this.onChangeIndex}
                   index={this.state.index}
                   slideRenderer={this.slideRenderer}
+                  slideStyle={{ height: '100%' }}
                 />
               </div>
             )}
@@ -256,7 +230,7 @@ export default compose(
   withConnect,
   withReducer,
   withSaga,
-  sizeMe(),
+  sizeMe({ monitorHeight: true }),
   withTheme(),
   withStyles(styles),
 )(PostPage);

@@ -18,20 +18,17 @@ import {
   makeSelectError,
   makeSelecDBUser,
 } from 'containers/App/selectors';
-import { LocaleToggle } from 'containers/LocaleToggle';
 import { makeSelectUsername } from './selectors';
 
 import reducer from './reducer';
 import saga from './saga';
 import ListItemsPageVirtualized from './ListItemsPageVirtualized';
 import { makeSelectLocale } from '../LanguageProvider/selectors';
-// import { LanguageProvider } from '../LanguageProvider';
-// import messages from './messages';
 
 export class HomePage extends React.PureComponent {
   // eslint-disable-line react/prefer-stateless-function
   render() {
-    const { dbUser, auth, locale } = this.props;
+    const { dbUser, auth } = this.props;
 
     return (
       <article>
@@ -42,7 +39,6 @@ export class HomePage extends React.PureComponent {
             content="Create your own Meme with our generator"
           />
         </Helmet>
-        <LocaleToggle />
         <ListItemsPageVirtualized
           userID={dbUser.id}
           auth={auth}

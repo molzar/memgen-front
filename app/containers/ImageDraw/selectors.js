@@ -33,6 +33,11 @@ const makeSelectLatestUpload = () =>
     imageDrawState.get('latestUpload').toJS(),
   );
 
+const makeSelectImagesSLide = () =>
+  createSelector(selectImageDraw, imageDrawState =>
+    imageDrawState.get('imagesSlide').toJS(),
+  );
+
 export {
   selectImageDraw,
   makeSelectImage,
@@ -41,4 +46,5 @@ export {
   makeSelectBase64Meme,
   makeSelectUploadInput,
   makeSelectLatestUpload,
+  makeSelectImagesSLide,
 };

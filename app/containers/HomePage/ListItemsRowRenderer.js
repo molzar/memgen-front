@@ -37,7 +37,6 @@ const styles = theme => ({
   bottomHandler: {
     display: 'flex',
     flexDirection: 'row',
-    // backgroundColor: '#3f51b5',
     backgroundColor: theme.palette.primary.light,
   },
   commentsHandler: {
@@ -56,7 +55,6 @@ const styles = theme => ({
     height: '50px',
   },
   dislikeIcon: {
-    // color: '#b53f51',
     color: theme.palette.secondary.main,
   },
   shadowIcons: {
@@ -64,7 +62,6 @@ const styles = theme => ({
     boxShadow: theme.shadows[3],
   },
   likeIcon: {
-    // color: '#51b53f',
     color: theme.palette.primary2.main,
   },
   whiteColor: {
@@ -78,7 +75,6 @@ const styles = theme => ({
     alignItems: 'center',
     margin: 'auto',
     color: theme.palette.background.paper,
-    // color: 'white',
   },
   buttonNo: {
     backgroundColor: theme.palette.primary2.main,
@@ -159,7 +155,6 @@ class ListItemsRowRenderer extends React.Component {
         style={style}
         key={`list-item-${meme.id}`}
         className={classes.itemRow}
-        onLoad={measure}
       >
         <TopPost meme={meme} reportMemesSlide={this.reportMemesSlide} />
         <Link
@@ -183,7 +178,7 @@ class ListItemsRowRenderer extends React.Component {
               }`}
               alt=":)"
               key={`list-img-${meme.id}`}
-              // onLoad={measure}
+              onLoad={measure}
               className={classes.imgClass}
             />
           </div>

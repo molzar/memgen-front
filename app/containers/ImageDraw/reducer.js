@@ -67,12 +67,79 @@ export const textAttrs = {
 };
 
 export const image = {
-  src: 'https://i.imgur.com/6qCxMKM.png',
+  src: 'https://i.imgur.com/jPr0yfo.png',
   crossOrigin: 'Anonymous',
-  width: 236,
-  height: 213,
   whereFrom: 'fromLink',
 };
+
+export const imagesSlide = [
+  {
+    src: 'https://i.imgur.com/TiaRZ60.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 1,
+  },
+  {
+    src: 'https://i.imgur.com/cIF8ZDi.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 2,
+  },
+  {
+    src: 'https://i.imgur.com/264iS1T.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 3,
+  },
+  {
+    src: 'https://i.imgur.com/7tPRwp8.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 4,
+  },
+  {
+    src: 'https://i.imgur.com/tLxA2Gg.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 5,
+  },
+  {
+    src: 'https://i.imgur.com/2jtPB45.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 6,
+  },
+  {
+    src: 'https://i.imgur.com/i6U3KqQ.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 7,
+  },
+  {
+    src: 'https://i.imgur.com/2RlyVSh.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 8,
+  },
+  {
+    src: 'https://i.imgur.com/70ICXxQ.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 9,
+  },
+  {
+    src: 'https://i.imgur.com/bhX4P8R.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 10,
+  },
+  {
+    src: 'https://i.imgur.com/jPr0yfo.png',
+    crossOrigin: 'Anonymous',
+    whereFrom: 'fromLink',
+    key: 11,
+  },
+];
 
 export const initialState = fromJS({
   uploadInput,
@@ -81,6 +148,7 @@ export const initialState = fromJS({
   textAttrs,
   base64Meme: '',
   latestUpload: { url: 'urlImage' },
+  imagesSlide,
 });
 
 function imageDrawReducer(state = initialState, action) {

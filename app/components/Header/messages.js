@@ -17,7 +17,7 @@ export default defineMessages({
     defaultMessage: 'Features',
   },
   logIn: {
-    id: `${scope}.login`,
+    id: `${scope}.logIn`,
     defaultMessage: 'Log In',
   },
   logOut: {
@@ -35,5 +35,9 @@ export default defineMessages({
   makeMeme: {
     id: `${scope}.makeMeme`,
     defaultMessage: 'Make MeMe',
+  },
+  placeholderLanguage: {
+    id: `${scope}.placeholderLanguage`,
+    defaultMessage: 'Language',
   },
 });

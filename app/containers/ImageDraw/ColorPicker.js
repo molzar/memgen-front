@@ -18,10 +18,8 @@ const styles = theme => ({
   swatch: {
     padding: '5px',
     background: theme.palette.background.paper,
-    // background: '#fff',
     borderRadius: '1px',
-    // boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
-    boxShadow: theme.shadows[2],
+    boxShadow: theme.shadows[3],
     display: 'inline-block',
     cursor: 'pointer',
   },

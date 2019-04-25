@@ -24,7 +24,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import RemoveIcon from '@material-ui/icons/Remove';
 import InputLabel from '@material-ui/core/InputLabel';
 
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, FormattedDate } from 'react-intl';
 import messages from './messages';
 import { makeSelecGridProps, makeSelecDBUser } from '../App/selectors';
 import { makeSelectComments } from './selectors';
@@ -57,7 +57,6 @@ const styles = theme => ({
     margin: 10,
   },
   customTextField: {
-    // maxWidth: '60%',
     width: 'inherit',
     color: theme.palette.primary.contrastText,
     flex: '1 1 25%',
@@ -108,7 +107,7 @@ const styles = theme => ({
     ':hover': {
       color: theme.palette.action.hover,
     },
-    boxShadow: theme.shadows[2],
+    boxShadow: theme.shadows[3],
   },
   paginateliaPreviousComment: {
     padding: '8px 16px',
@@ -118,7 +117,7 @@ const styles = theme => ({
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     marginTop: '30px',
-    boxShadow: theme.shadows[2],
+    boxShadow: theme.shadows[3],
   },
   paginateActive: {
     backgroundColor: theme.palette.primary.dark,
@@ -380,7 +379,19 @@ class CommentsComponent extends Component {
                       onChange={this.handleTextChange}
                     />
                   }
-                  subheader={comment.updated_at}
+                  subheader={
+                    <FormattedDate
+                      value={comment.updated_at}
+                      day="2-digit"
+                      month="2-digit"
+                      year="numeric"
+                      hour="2-digit"
+                      minute="2-digit"
+                      secunde="2-digit"
+                      localeMatcher="best fit"
+                      formatMatcher="best fit"
+                    />
+                  }
                 />
 
                 <Collapse
@@ -504,7 +515,19 @@ class CommentsComponent extends Component {
                                 key={`replay-text-${replay.id_comment}`}
                               />
                             }
-                            subheader={replay.updated_at}
+                            subheader={
+                              <FormattedDate
+                                value={replay.updated_at}
+                                day="2-digit"
+                                month="2-digit"
+                                year="numeric"
+                                hour="2-digit"
+                                minute="2-digit"
+                                secunde="2-digit"
+                                localeMatcher="best fit"
+                                formatMatcher="best fit"
+                              />
+                            }
                           />
                         </Card>
                       </CardContent>

@@ -140,7 +140,12 @@ class MyTextModifier extends React.Component {
               value={textAttrs[name].text.fontSize}
               onChange={this.handleSelectChange(name)}
               autoWidth
-              input={<BootstrapInput name="age" id="age-customized-select" />}
+              input={
+                <BootstrapInput
+                  name={`font-size-name-${name}`}
+                  id={`font-size-select-${name}`}
+                />
+              }
             >
               {[...Array(15).keys()].map(
                 x =>

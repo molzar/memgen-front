@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+import LanguageSharp from '@material-ui/icons/LanguageSharp';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Avatar from '@material-ui/core/Avatar';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
@@ -39,17 +40,19 @@ const styles = theme => ({
     flexGrow: 1,
   },
   avatar: {
-    margin: 10,
+    margin: '2px',
+    padding: '2px',
   },
   appBar: {
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    color: theme.palette.primary.contrastText,
   },
   menuButton: {
-    marginLeft: 12,
-    marginRight: 20,
+    minWidth: '52px',
+    minHeigth: '52px',
   },
   hide: {
     display: 'none',
@@ -83,6 +86,11 @@ const styles = theme => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginLeft: 0,
+  },
+  logInOutButton: {
+    margin: '5px',
+    boxShadow: theme.shadows[3],
+    borderRadius: '0px',
   },
 });
 
@@ -128,42 +136,35 @@ class Header extends React.Component {
                 color="inherit"
                 aria-label="Open drawer"
                 onClick={this.handleDrawerOpen}
-                className={classNames(
-                  classes.menuButton,
-                  this.state.open && classes.hide,
-                )}
+                className={classNames(classes.menuButton, this.state.open)}
               >
-                <MenuIcon style={{ fontSize: 40, margin: 10 }} />
+                <MenuIcon style={{ fontSize: 32, padding: 2 }} />
               </IconButton>
               <Typography variant="h6" color="inherit" className={classes.grow}>
                 MeMGeN
               </Typography>
-              <LocaleToggle
-                locale={this.props.locale}
-                onLocaleToggle={this.props.onLocaleToggle}
-              />
-              {isAuthenticated() ? (
-                <IconButton color="inherit">
+
+              {isAuthenticated() && (
+                <IconButton
+                  color="inherit"
+                  style={{ fontSize: 32, margin: 2, padding: 2 }}
+                >
                   {userProfile && userProfile.picture ? (
                     <Avatar
                       alt=":)"
-                      src={`/api/proxy/${encodeURIComponent( // {}
-                          userProfile.picture,
-                        )}?width=40`}
-                      className={classes.avatar}
+                      src={`/api/proxy/${encodeURIComponent(
+                        userProfile.picture,
+                      )}?width=40`}
+                      style={{ fontSize: 40 }}
                     />
                   ) : (
-                    <AccountCircle style={{ fontSize: 40, margin: 10 }} />
+                    <AccountCircle style={{ fontSize: 40 }} />
                   )}
-                </IconButton>
-              ) : (
-                <IconButton color="inherit">
-                  <AccountCircle style={{ fontSize: 40, margin: 10 }} />
                 </IconButton>
               )}
               <Button
                 color="inherit"
-                style={{ width: 100 }}
+                className={classes.logInOutButton}
                 onClick={isAuthenticated() ? logout : login}
               >
                 {isAuthenticated() ? (
@@ -195,7 +196,7 @@ class Header extends React.Component {
           <List onClick={this.toggleDrawer(false)}>
             <Link style={{ textDecoration: 'none' }} to="/">
               <ListItem button key="All MeMes">
-                <ListItemIcon>
+                <ListItemIcon style={{ fontSize: 40, margin: 10 }}>
                   <HomeSharp />
                 </ListItemIcon>
                 <ListItemText
@@ -207,7 +208,7 @@ class Header extends React.Component {
               <>
                 <Link style={{ textDecoration: 'none' }} to="/imageDraw">
                   <ListItem button key="Make MeMe">
-                    <ListItemIcon>
+                    <ListItemIcon style={{ fontSize: 40, margin: 10 }}>
                       <AddAPhotoSharp />
                     </ListItemIcon>
                     <ListItemText
@@ -218,7 +219,7 @@ class Header extends React.Component {
 
                 <Link style={{ textDecoration: 'none' }} to="/myMemes">
                   <ListItem button key="My MeMes">
-                    <ListItemIcon>
+                    <ListItemIcon style={{ fontSize: 40, margin: 10 }}>
                       <PhotoLibrarySharp />
                     </ListItemIcon>
                     <ListItemText
@@ -230,6 +231,23 @@ class Header extends React.Component {
             ) : (
               ''
             )}
+          </List>
+          <List>
+            <Divider />
+            <ListItem button={false} key="Language">
+              <ListItemIcon style={{ fontSize: 40, margin: 10 }}>
+                <LanguageSharp />
+              </ListItemIcon>
+              <FormattedMessage {...messages.placeholderLanguage}>
+                {placeholder => (
+                  <LocaleToggle
+                    placeholderLanguage={placeholder}
+                    locale={this.props.locale}
+                    onLocaleToggle={this.props.onLocaleToggle}
+                  />
+                )}
+              </FormattedMessage>
+            </ListItem>
           </List>
         </SwipeableDrawer>
       </>

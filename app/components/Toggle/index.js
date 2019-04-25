@@ -7,9 +7,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Select from './Select';
+// import Select from './Select';
+import Select from '@material-ui/core/Select';
+import { FormControl, OutlinedInput, InputLabel } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
 import ToggleOption from '../ToggleOption';
 
+const styles = theme => ({
+  root: {
+    display: 'flex',
+  },
+});
 function Toggle(props) {
   let content = <option>--</option>;
 
@@ -20,9 +28,25 @@ function Toggle(props) {
     ));
   }
   return (
-    <Select value={props.value} onChange={props.onToggle}>
-      {content}
-    </Select>
+    <FormControl variant="outlined" style={{ minWidth: '120px' }}>
+      <InputLabel htmlFor="outlined-language-native-simple">
+        {props.placeholderLanguage}
+      </InputLabel>
+      <Select
+        native
+        value={props.value}
+        onChange={props.onToggle}
+        input={
+          <OutlinedInput
+            name="age"
+            id="filled-language-native-simple"
+            labelWidth={80}
+          />
+        }
+      >
+        {content}
+      </Select>
+    </FormControl>
   );
 }
 
@@ -31,6 +55,7 @@ Toggle.propTypes = {
   values: PropTypes.array,
   value: PropTypes.string,
   messages: PropTypes.object,
+  placeholderLanguage: PropTypes.string,
 };
 
-export default Toggle;
+export default withStyles(styles, { withTheme: true })(Toggle);
